@@ -11,7 +11,6 @@ public class GenTransactions {
 
 	public static List<Block> blockchain = new ArrayList<Block>();
 
-
 	public static void main(String[] args) {	
 		//Setup Bouncey castle as a Security Provider
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider()); 
