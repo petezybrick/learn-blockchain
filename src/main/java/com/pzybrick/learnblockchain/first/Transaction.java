@@ -60,7 +60,6 @@ public class Transaction {
 		for (TransactionInput i : inputs) {
 			i.UTXO = FirstChain.UTXOs.get(i.transactionOutputId);
 		}
-
 		// check if transaction is valid:
 		if (getInputsValue() < FirstChain.minimumTransaction) {
 			System.out.println("#Transaction Inputs to small: " + getInputsValue());
