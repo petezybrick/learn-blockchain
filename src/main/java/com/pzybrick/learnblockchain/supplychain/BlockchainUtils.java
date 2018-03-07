@@ -1,10 +1,15 @@
 package com.pzybrick.learnblockchain.supplychain;
 
+import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -65,10 +70,10 @@ public class BlockchainUtils {
 	}
 
 	// Tacks in array of transactions and returns a merkle root.
-	public static String getMerkleRoot(List<Transaction> transactions) {
+	public static String getMerkleRoot(List<SupplyChainTransaction> transactions) {
 		int count = transactions.size();
 		ArrayList<String> previousTreeLayer = new ArrayList<String>();
-		for (Transaction transaction : transactions) {
+		for (SupplyChainTransaction transaction : transactions) {
 			previousTreeLayer.add(transaction.transactionId);
 		}
 		ArrayList<String> treeLayer = previousTreeLayer;
@@ -89,4 +94,28 @@ public class BlockchainUtils {
 	public static String getDificultyString(int difficulty) {
 		return new String(new char[difficulty]).replace('\0', '0');
 	}
+	
+
+	public static String toHexString(byte[] array) {
+	    return DatatypeConverter.printHexBinary(array);
+	}
+
+	public static byte[] toByteArray(String s) {
+	    return DatatypeConverter.parseHexBinary(s);
+	}
+	
+	
+public static KeyPair generateKeyPair() throws Exception {
+	try {
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA","BC");
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime192v1");
+		// Initialize the key generator and generate a KeyPair
+		keyGen.initialize(ecSpec, random);   //256 bytes provides an acceptable security level
+    	KeyPair keyPair = keyGen.generateKeyPair();
+    	return keyPair;
+	}catch(Exception e) {
+		throw new RuntimeException(e);
+	}
+}
 }
