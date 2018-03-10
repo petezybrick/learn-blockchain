@@ -10,17 +10,30 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 public class GenTransactions {
-	public static List<Block> blockchain = new ArrayList<Block>();
+	private static final Logger logger = LogManager.getLogger(GenTransactions.class);
 	// Demo/learning purposes only - use Keystore
 	private static final String encPrivateKey = 
 		"307B020100301306072A8648CE3D020106082A8648CE3D0301010461305F020101041815D67A1C8826B62A54AD050B65A9812470C04B5E25FDAA1DA00A06082A8648CE3D030101A13403320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
 	private static final String encPublicKey = 
 		"3049301306072A8648CE3D020106082A8648CE3D03010103320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
 	private static final String encAlgorithm = "ECDSA";
-	private PrivateKey myPrivateKey;	
-	private PublicKey myPublicKey;
-
+	private List<SupplierBlock> supplierBlockchain = new ArrayList<SupplierBlock>();
+	private PrivateKey privateKeyMaster;	
+	private PublicKey publicKeyMaster;
+	public static final ObjectMapper objectMapper;
+	
+	static {
+		objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+	}
+ 	
 	public static void main(String[] args) {
 		try {
 			//Setup Bouncey castle as a Security Provider
@@ -29,45 +42,56 @@ public class GenTransactions {
 			genTransactions.process();
 
 		} catch( Exception e ) {
-			System.out.println(e);
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 	
 	public void process() throws Exception  {
-		initMyKeys();
+		final int NUM_TEST_SUPPLIERS = 10;
+		initKeysMaster();
 		// TODO: supplier database with their public keys
-		KeyPair supplierKeyPair = BlockchainUtils.generateKeyPair();
-		SupplyChainTransaction transaction = new SupplyChainTransaction(myPublicKey, supplierKeyPair.getPublic(), "test order");
-		transaction.generateSignature(myPrivateKey);
-				//Verify the signature works and verify it from the public key
-		System.out.println("Is signature verified");
-		System.out.println(transaction.verifiySignature());
-
+		List<KeyPair> supplierKeyPairs = new ArrayList<KeyPair>();
+		for( int i=0 ; i<NUM_TEST_SUPPLIERS ; i++ ) {
+			supplierKeyPairs.add( BlockchainUtils.generateKeyPair());
+		}
+		int sequence = 0;
+		String previousHash = "0";
+		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
+			SupplyChainTransaction supplyChainTransaction = new SupplyChainTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + sequence, privateKeyMaster);
+			SupplierBlock supplierBlock = new SupplierBlock( previousHash, supplyChainTransaction, sequence );
+			supplierBlockchain.add( supplierBlock );
+			sequence++;
+			previousHash = supplierBlock.getHash(); 
+		}
+		
+		for( SupplierBlock supplierBlock : supplierBlockchain ) {
+			logger.info(supplierBlock.toString());
+		}
+		logger.info("isChainValid " + isChainValid() );
 	}
 	
-	public void initMyKeys() throws Exception {
+	public void initKeysMaster() throws Exception {
 		KeyFactory kf = KeyFactory.getInstance(encAlgorithm); // or "EC" or whatever
-		this.myPrivateKey = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encPrivateKey) ));
-		this.myPublicKey = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encPublicKey) ));
+		this.privateKeyMaster = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encPrivateKey) ));
+		this.publicKeyMaster = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encPublicKey) ));
 	}
 
-	public static Boolean isChainValid() {
-		Block currentBlock; 
-		Block previousBlock;
+	public Boolean isChainValid() {
+		SupplierBlock currentBlock; 
+		SupplierBlock previousBlock; 
 		
 		//loop through blockchain to check hashes:
-		for(int i=1; i < blockchain.size(); i++) {
-			currentBlock = blockchain.get(i);
-			previousBlock = blockchain.get(i-1);
+		for(int i=1; i < supplierBlockchain.size(); i++) {
+			currentBlock = supplierBlockchain.get(i);
+			previousBlock = supplierBlockchain.get(i-1);
 			//compare registered hash and calculated hash:
-			if(!currentBlock.hash.equals(currentBlock.calculateHash()) ){
-				System.out.println("Current Hashes not equal");			
+			if(!currentBlock.getHash().equals(currentBlock.calculateHash()) ){
+				logger.info("Current Hashes not equal");			
 				return false;
 			}
 			//compare previous hash and registered previous hash
-			if(!previousBlock.hash.equals(currentBlock.previousHash) ) {
-				System.out.println("Previous Hashes not equal");
+			if(!previousBlock.getHash().equals(currentBlock.getPreviousHash()) ) {
+				logger.info("Previous Hashes not equal");
 				return false;
 			}
 		}
