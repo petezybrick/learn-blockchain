@@ -12,7 +12,7 @@ public class SupplierTransaction {
 	private String supplierCategory;
 	private String supplierSubCategory;
 	private String lotNumber;
-	private String partNumber;
+	private String itemNumber;
 	private String description;
 	private int qty;
 	private String units;
@@ -32,8 +32,8 @@ public class SupplierTransaction {
 	public String getLotNumber() {
 		return lotNumber;
 	}
-	public String getPartNumber() {
-		return partNumber;
+	public String getItemNumber() {
+		return itemNumber;
 	}
 	public String getDescription() {
 		return description;
@@ -63,8 +63,8 @@ public class SupplierTransaction {
 		this.lotNumber = lotNumber;
 		return this;
 	}
-	public SupplierTransaction setPartNumber(String partNumber) {
-		this.partNumber = partNumber;
+	public SupplierTransaction setItemNumber(String itemNumber) {
+		this.itemNumber = itemNumber;
 		return this;
 	}
 	public SupplierTransaction setDescription(String description) {
@@ -96,6 +96,14 @@ public class SupplierTransaction {
 	public SupplierTransaction setSupplierName(String supplierName) {
 		this.supplierName = supplierName;
 		return this;
+	}
+	@Override
+	public String toString() {
+		return "SupplierTransaction [dunsNumber=" + dunsNumber + ", supplierName=" + supplierName
+				+ ", supplierCategory=" + supplierCategory + ", supplierSubCategory=" + supplierSubCategory
+				+ ", lotNumber=" + lotNumber + ", itemNumber=" + itemNumber + ", description=" + description + ", qty="
+				+ qty + ", units=" + units + ", shippedDateIso8601=" + shippedDateIso8601 + ", rcvdDateIso8601="
+				+ rcvdDateIso8601 + "]";
 	}
 	
 }

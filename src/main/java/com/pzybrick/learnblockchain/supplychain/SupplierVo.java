@@ -8,6 +8,7 @@ public class SupplierVo {
 	private String supplierSubCategory;
 	private String stateProvince;
 	private String country;
+	private String encodedPublicKey;
 	
 	public String getSupplierUuid() {
 		return supplierUuid;
@@ -63,6 +64,13 @@ public class SupplierVo {
 		return "SupplierVo [supplierUuid=" + supplierUuid + ", dunsNumber=" + dunsNumber + ", supplierName="
 				+ supplierName + ", supplierCategory=" + supplierCategory + ", supplierSubCategory="
 				+ supplierSubCategory + ", stateProvince=" + stateProvince + ", country=" + country + "]";
+	}
+	public String getEncodedPublicKey() {
+		return encodedPublicKey;
+	}
+	public SupplierVo setEncodedPublicKey(String encodedPublicKey) {
+		this.encodedPublicKey = encodedPublicKey;
+		return this;
 	}
 	
 }

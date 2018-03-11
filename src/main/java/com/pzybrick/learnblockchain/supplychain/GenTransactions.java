@@ -19,11 +19,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class GenTransactions {
 	private static final Logger logger = LogManager.getLogger(GenTransactions.class);
 	// Demo/learning purposes only - use Keystore
-	private static final String encPrivateKey = 
+	public static final String encodedPrivateKey = 
 		"307B020100301306072A8648CE3D020106082A8648CE3D0301010461305F020101041815D67A1C8826B62A54AD050B65A9812470C04B5E25FDAA1DA00A06082A8648CE3D030101A13403320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
-	private static final String encPublicKey = 
+	public static final String encodedPublicKey = 
 		"3049301306072A8648CE3D020106082A8648CE3D03010103320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
-	private static final String encAlgorithm = "ECDSA";
+	public static final String encryptionAlgorithm = "ECDSA";
 	private List<SupplierBlock> supplierBlockchain = new ArrayList<SupplierBlock>();
 	private PrivateKey privateKeyMaster;	
 	private PublicKey publicKeyMaster;
@@ -71,9 +71,9 @@ public class GenTransactions {
 	}
 	
 	public void initKeysMaster() throws Exception {
-		KeyFactory kf = KeyFactory.getInstance(encAlgorithm); // or "EC" or whatever
-		this.privateKeyMaster = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encPrivateKey) ));
-		this.publicKeyMaster = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encPublicKey) ));
+		KeyFactory kf = KeyFactory.getInstance(encryptionAlgorithm); // or "EC" or whatever
+		this.privateKeyMaster = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encodedPrivateKey) ));
+		this.publicKeyMaster = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encodedPublicKey) ));
 	}
 
 	public Boolean isChainValid() {
