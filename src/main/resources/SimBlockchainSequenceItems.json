@@ -1,0 +1,52 @@
+[
+	{
+		"supplier_type": "brewersRice",
+		"desc_cat_subcat_items": [
+			{
+				"desc": "Brewers Rice",
+				"category": "farm",
+				"subCategory": "rice"
+			},
+			{
+				"desc": "Grade A Brewers Rice Seeds",
+				"category": "supplier",
+				"subCategory": "seed"
+			},
+			{
+				"desc": "10-20-10 Fertilizer",
+				"category": "supplier",
+				"subCategory": "fertilizer"
+			},
+			{
+				"desc": "Grade A Brewers Rice",
+				"category": "distributor",
+				"subCategory": "rice"
+			}
+		]
+	},
+	{
+		"supplier_type": "chickenMeal",
+		"desc_cat_subcat_items": [
+			{
+				"desc": "Chicken Meal",
+				"category": "farm",
+				"subCategory": "chicken"
+			},
+			{
+				"desc": "Baby Chicks",
+				"category": "supplier",
+				"subCategory": "chicks"
+			},
+			{
+				"desc": "Grade A Chicken Feed",
+				"category": "supplier",
+				"subCategory": "chicken_feed"
+			},
+			{
+				"desc": "Grade A Chicken Meal",
+				"category": "distributor",
+				"subCategory": "chicken"
+			}
+		]
+	}
+]
