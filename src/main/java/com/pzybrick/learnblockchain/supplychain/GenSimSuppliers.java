@@ -8,6 +8,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,9 +36,11 @@ public class GenSimSuppliers {
 			"Chicken Feed Suppliers, LLC", "supplier", "chicken_feed", "Chick Suppliers, LLC",
 			"supplier", "chicks", "Brewers Rice Cooperative, LLC", "distributor", "rice", "Chicken Meal Cooperative, LLC", "distributor", "chicken",
 			"Wheat Cooperative, LLC", "distributor", "wheat", "Corn Gluten Cooperative, LLC", "distributor", "corn", "Oat Groats Cooperative, LLC",
-			"distributor", "oat", "Fish Oil Cooperative, LLC", "distributor", "fish", "Beet Pulp Cooperative, LLC", "distributor", "beet", };
+			"distributor", "oat", "Fish Oil Cooperative, LLC", "distributor", "fish_oil", "Beet Pulp Cooperative, LLC", "distributor", "beet", };
 	public static final int NUM_SIM_SUPPLIERS = triples.length / 3;
-	public static final int NUM_SIM_CHAINS_PER_SOURCE = 10;
+	public static final int NUM_SIM_CHAINS_PER_SOURCE = 100;
+	public static final int NUM_SIM_LOTS = 10;
+	public static final int NUM_SIM_PROD_WEEKS = 8;
 	private KeyFactory keyFactory;
 	private PrivateKey privateKeyFrom;
 	private PublicKey publicKeyFrom;
@@ -96,12 +99,40 @@ public class GenSimSuppliers {
 					new TypeReference<List<SimBlockchainSequenceItem>>() {
 					});
 
-			// TODO? Put the definitions in a flat file
-			String[] brewersRiceSim = { "Brewers Rice|farm|rice", "Grade A Brewers Rice Seeds|supplier|seed", "10-20-10 Fertilizer|supplier|fertilizer",
-					"Grade A Brewers Rice|distributor|rice" };
 			for (SimBlockchainSequenceItem simBlockchainSequenceItem : simBlockchainSequenceItems) {
 				mapSimBlockchainsBySourceKey.put(simBlockchainSequenceItem.getSupplierType(),
 						genSimBlockchains(mapSupplierVos, simBlockchainSequenceItem.getDescCatSubcatItems()));
+			}
+			
+			// a Lot of Canine Nutrition consists of Ingredients, each Ingredient comes from a chain of suppliers
+			// 		For each ingredient type, i.e. Brewers Rice, there are multiple suppliers, aka multiple blockchains
+			//		Pick a random supplier (blockchain) for each ingredient and add to the log
+			List<String> supplierTypes = Arrays.asList("brewers_rice","chicken_meal","wheat","corn_gluten","oat_groats","beet_pulp","fish_oil");
+			List<LotCanineNutrition> lotCanineNutritions = new ArrayList<LotCanineNutrition>();
+			ZonedDateTime simProdWeek;
+			simProdWeek = ZonedDateTime.of(2018, 1, 8, 0, 0, 0, 0, ZoneId.of("UTC"));
+			final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+			for( int i=0 ; i<NUM_SIM_PROD_WEEKS ; i++) {
+				String lotNumberRoot = simProdWeek.format(fmt) + "-";
+				int lotNumberSeq = 1;
+				for( int j=0 ; j<NUM_SIM_LOTS ; j++ ) {
+					List<SupplierBlockchain> supplierBlockchains = new ArrayList<SupplierBlockchain>();
+					LotCanineNutrition lotCanineNutrition = new LotCanineNutrition()
+							.setLotNumber(lotNumberRoot +  lotNumberSeq)
+							.setIngredientNames(supplierTypes)
+							.setSupplierBlockchains(supplierBlockchains);
+					lotCanineNutritions.add(lotCanineNutrition);
+					for( String supplierType : supplierTypes ) {
+						List<SupplierBlockchain> list = mapSimBlockchainsBySourceKey.get(supplierType);
+						int offset = random.nextInt(list.size());
+						//System.out.println(offset + " " + list.size());
+						supplierBlockchains.add( list.get(offset));
+					}
+					//System.out.println("=========================");
+					System.out.println(lotCanineNutrition);
+					lotNumberSeq++;
+				}
+				simProdWeek = simProdWeek.plusWeeks(1);
 			}
 
 		} catch (Exception e) {

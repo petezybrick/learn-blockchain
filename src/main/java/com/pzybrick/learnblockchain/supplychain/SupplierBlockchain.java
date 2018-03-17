@@ -13,6 +13,11 @@ public class SupplierBlockchain {
 		this.supplierBlocks = supplierBlocks;
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		return "SupplierBlockchain [supplierBlocks=" + supplierBlocks + "]";
+	}
 	
 	
 
