@@ -57,7 +57,7 @@ public class GenTransactions {
 		int sequence = 0;
 		String previousHash = "0";
 		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
-			SupplyChainTransaction supplyChainTransaction = new SupplyChainTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + sequence, privateKeyMaster);
+			SupplyChainTransaction supplyChainTransaction = new SupplyChainTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + sequence, privateKeyMaster, sequence);
 			SupplierBlock supplierBlock = new SupplierBlock( previousHash, supplyChainTransaction, sequence );
 			supplierBlockchain.add( supplierBlock );
 			sequence++;

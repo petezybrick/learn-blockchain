@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  blockchain-mysql:
+    image: mysql:5.6
+    command: mysqld_safe
+    hostname: blockchain-mysql
+    container_name: blockchain-mysql
+    mem_limit: 8g
+    memswap_limit: 8g
+    expose:
+      - 3306
+    ports:
+      - 3307:3306
+    volumes:
+      - ../blockchain-shared:/tmp/blockchain-shared

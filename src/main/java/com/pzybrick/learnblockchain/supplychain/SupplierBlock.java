@@ -1,22 +1,19 @@
 package com.pzybrick.learnblockchain.supplychain;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class SupplierBlock {
 	
 	private String hash;
 	private String previousHash;
 	private SupplyChainTransaction supplyChainTransaction;
-	private long timeStamp;
-	private int sequence;
+	private long blockTimestamp;
+	private int blockSequence;
 	
 
-	public SupplierBlock(String previousHash, SupplyChainTransaction supplyChainTransaction, int sequence ) {
+	public SupplierBlock(String previousHash, SupplyChainTransaction supplyChainTransaction, int blockSequence ) {
 		this.previousHash = previousHash;
 		this.supplyChainTransaction = supplyChainTransaction;
-		this.timeStamp = System.currentTimeMillis();
-		this.sequence = sequence;
+		this.blockTimestamp = System.currentTimeMillis();
+		this.blockSequence = blockSequence;
 		this.hash = calculateHash();
 	}
 	
@@ -24,9 +21,9 @@ public class SupplierBlock {
 	public String calculateHash() {
 		return BlockchainUtils.applySha256( 
 			this.previousHash +
-			Long.toString(timeStamp) +
+			Long.toString(blockTimestamp) +
 			this.supplyChainTransaction + 
-			Integer.toString(this.sequence)
+			Integer.toString(this.blockSequence)
 			);
 	}
 
@@ -42,12 +39,12 @@ public class SupplierBlock {
 		return supplyChainTransaction;
 	}
 
-	public long getTimeStamp() {
-		return timeStamp;
+	public long getBlockTimestamp() {
+		return blockTimestamp;
 	}
 
-	public int getSequence() {
-		return sequence;
+	public int getBlockSequence() {
+		return blockSequence;
 	}
 
 	public SupplierBlock setHash(String hash) {
@@ -65,20 +62,20 @@ public class SupplierBlock {
 		return this;
 	}
 
-	public SupplierBlock setTimeStamp(long timeStamp) {
-		this.timeStamp = timeStamp;
+	public SupplierBlock setBlockTimestamp(long timeStamp) {
+		this.blockTimestamp = timeStamp;
 		return this;
 	}
 
-	public SupplierBlock setSequence(int sequence) {
-		this.sequence = sequence;
+	public SupplierBlock setBlockSequence(int blockSequence) {
+		this.blockSequence = blockSequence;
 		return this;
 	}
 
 	@Override
 	public String toString() {
 		return "SupplierBlock [hash=" + hash + ", previousHash=" + previousHash + ", supplyChainTransaction="
-				+ supplyChainTransaction + ", timeStamp=" + timeStamp + ", sequence=" + sequence + "]";
+				+ supplyChainTransaction + ", timeStamp=" + blockTimestamp + ", sequence=" + blockSequence + "]";
 	}
 	
 }

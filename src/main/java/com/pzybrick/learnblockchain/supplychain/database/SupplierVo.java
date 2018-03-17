@@ -1,4 +1,4 @@
-package com.pzybrick.learnblockchain.supplychain;
+package com.pzybrick.learnblockchain.supplychain.database;
 
 public class SupplierVo {
 	private String supplierUuid;

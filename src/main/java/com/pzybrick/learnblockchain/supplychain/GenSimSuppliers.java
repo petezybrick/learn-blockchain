@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pzybrick.learnblockchain.supplychain.SimBlockchainSequenceItem.DescCatSubcatItem;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierTransactionVo;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierVo;
 
 public class GenSimSuppliers {
 	private static final Logger logger = LogManager.getLogger(GenSimSuppliers.class);
@@ -151,9 +153,9 @@ public class GenSimSuppliers {
 				String key = descCatSubcatItem.getCategory() + "|" + descCatSubcatItem.getSubCategory();
 				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
 				SupplierVo supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
-				SupplierTransaction supplierTransaction = new SupplierTransaction().setDunsNumber(supplierVoRnd.getDunsNumber())
+				SupplierTransactionVo supplierTransaction = new SupplierTransactionVo().setDunsNumber(supplierVoRnd.getDunsNumber())
 						.setSupplierName(supplierVoRnd.getSupplierName()).setSupplierCategory(supplierVoRnd.getSupplierCategory())
-						.setSupplierSubCategory(supplierVoRnd.getSupplierSubCategory()).setLotNumber("TODO").setItemNumber("TODO")
+						.setSupplierSubCategory(supplierVoRnd.getSupplierSubCategory()).setSupplierLotNumber("TODO").setItemNumber("TODO")
 						.setDescription(descCatSubcatItem.getDesc()).setQty(100).setUnits("TODO")
 						.setShippedDateIso8601(simDate.plusDays(simdDateDaysOffset++).format(DateTimeFormatter.ISO_INSTANT))
 						.setRcvdDateIso8601(simDate.plusDays(simdDateDaysOffset++).format(DateTimeFormatter.ISO_INSTANT));

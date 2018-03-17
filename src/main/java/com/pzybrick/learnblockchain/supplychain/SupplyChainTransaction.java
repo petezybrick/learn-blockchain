@@ -11,23 +11,23 @@ public class SupplyChainTransaction {
 	public PublicKey publicKeyTo;
 	public String transactionData;
 	public byte[] signature;
-	private int sequence = 0;
+	private int transactionSequence = 0;
 
 	// Constructor:
-	public SupplyChainTransaction(PublicKey publicKeyFrom, PublicKey publicKeyTo, String transactionData, PrivateKey privateKeyFrom ) {
+	public SupplyChainTransaction(PublicKey publicKeyFrom, PublicKey publicKeyTo, String transactionData, PrivateKey privateKeyFrom,
+			int transactionSequence) {
 		this.publicKeyFrom = publicKeyFrom;
 		this.publicKeyTo = publicKeyTo;
 		this.transactionData = transactionData;
+		this.transactionSequence = transactionSequence;
 		transactionId = calculateHash();
 		this.generateSignature( privateKeyFrom );
 	}
 
 	// This Calculates the transaction hash (which will be used as its Id)
 	private String calculateHash() {
-		sequence++; // increase the sequence to avoid 2 identical transactions
-					// having the same hash
 		return BlockchainUtils.applySha256(BlockchainUtils.getStringFromKey(publicKeyFrom)
-				+ BlockchainUtils.getStringFromKey(publicKeyTo) + transactionData + sequence);
+				+ BlockchainUtils.getStringFromKey(publicKeyTo) + transactionData + transactionSequence);
 	}
 
 	// Signs all the data we dont wish to be tampered with.
@@ -57,7 +57,7 @@ public class SupplyChainTransaction {
 
 	@Override
 	public String toString() {
-		return "SupplyChainTransaction [transactionId=" + transactionId + ", transactionData=" + transactionData + ", sequence=" + sequence + "]";
+		return "SupplyChainTransaction [transactionId=" + transactionId + ", transactionData=" + transactionData + ", sequence=" + transactionSequence + "]";
 	}
 
 }
