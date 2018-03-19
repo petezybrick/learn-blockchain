@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pzybrick.learnblockchain.supplychain.SimBlockchainSequenceItem.DescCatSubcatItem;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierTransactionVo;
-import com.pzybrick.learnblockchain.supplychain.database.SupplierVo;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierVoBackup;
 
 public class GenSimSuppliers {
 	private static final Logger logger = LogManager.getLogger(GenSimSuppliers.class);
@@ -71,14 +71,14 @@ public class GenSimSuppliers {
 
 	public void process() throws Exception {
 		try {
-			List<SupplierVo> supplierVos = GenSimSuppliers.createSupplierVos();
+			List<SupplierVoBackup> supplierVos = GenSimSuppliers.createSupplierVos();
 			// farm,rice supplier,seed supplier,fert coop,rice ABCPetFood
-			Map<String, List<SupplierVo>> mapSupplierVos = new HashMap<String, List<SupplierVo>>();
-			for (SupplierVo supplierVo : supplierVos) {
+			Map<String, List<SupplierVoBackup>> mapSupplierVos = new HashMap<String, List<SupplierVoBackup>>();
+			for (SupplierVoBackup supplierVo : supplierVos) {
 				String key = supplierVo.getSupplierCategory() + "|" + supplierVo.getSupplierSubCategory();
-				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
+				List<SupplierVoBackup> supplierVosByKey = mapSupplierVos.get(key);
 				if (supplierVosByKey == null) {
-					supplierVosByKey = new ArrayList<SupplierVo>();
+					supplierVosByKey = new ArrayList<SupplierVoBackup>();
 					mapSupplierVos.put(key, supplierVosByKey);
 				}
 				supplierVosByKey.add(supplierVo);
@@ -142,7 +142,7 @@ public class GenSimSuppliers {
 		}
 	}
 
-	private List<SupplierBlockchain> genSimBlockchains(Map<String, List<SupplierVo>> mapSupplierVos, List<DescCatSubcatItem> descCatSubcatItems)
+	private List<SupplierBlockchain> genSimBlockchains(Map<String, List<SupplierVoBackup>> mapSupplierVos, List<DescCatSubcatItem> descCatSubcatItems)
 			throws Exception {
 		List<SupplierBlockchain> supplierBlockChains = new ArrayList<SupplierBlockchain>();
 		for (int i = 0; i < NUM_SIM_CHAINS_PER_SOURCE; i++) {
@@ -151,8 +151,8 @@ public class GenSimSuppliers {
 			List<SupplierBlock> supplierBlocks = new ArrayList<SupplierBlock>();
 			for (DescCatSubcatItem descCatSubcatItem : descCatSubcatItems) {
 				String key = descCatSubcatItem.getCategory() + "|" + descCatSubcatItem.getSubCategory();
-				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
-				SupplierVo supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
+				List<SupplierVoBackup> supplierVosByKey = mapSupplierVos.get(key);
+				SupplierVoBackup supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
 				SupplierTransactionVo supplierTransaction = new SupplierTransactionVo().setDunsNumber(supplierVoRnd.getDunsNumber())
 						.setSupplierName(supplierVoRnd.getSupplierName()).setSupplierCategory(supplierVoRnd.getSupplierCategory())
 						.setSupplierSubCategory(supplierVoRnd.getSupplierSubCategory()).setSupplierLotNumber("TODO").setItemNumber("TODO")
@@ -176,16 +176,16 @@ public class GenSimSuppliers {
 		return supplierBlockChains;
 	}
 
-	public static List<SupplierVo> createSupplierVos() throws Exception {
+	public static List<SupplierVoBackup> createSupplierVos() throws Exception {
 		char prefChar = 'A';
 		int dunsNumber = 1;
-		List<SupplierVo> supplierVos = new ArrayList<SupplierVo>();
+		List<SupplierVoBackup> supplierVos = new ArrayList<SupplierVoBackup>();
 		for (int i = 0; i < NUM_SIM_EACH_SUPPLIER; i++) {
 			for (int j = 0; j < triples.length; j += 3) {
 				KeyPair keyPair = BlockchainUtils.generateKeyPair();
 				String encodedPublicKey = BlockchainUtils.toHexString(keyPair.getPublic().getEncoded());
 				String supplierName = prefChar + String.valueOf(i + 1) + " " + triples[j];
-				SupplierVo supplierVo = new SupplierVo().setSupplierUuid(UUID.randomUUID().toString()).setDunsNumber(String.format("%09d", dunsNumber++))
+				SupplierVoBackup supplierVo = new SupplierVoBackup().setSupplierUuid(UUID.randomUUID().toString()).setDunsNumber(String.format("%09d", dunsNumber++))
 						.setSupplierName(supplierName).setSupplierCategory(triples[j + 1]).setSupplierSubCategory(triples[j + 2])
 						.setStateProvince(randomStateProvince()).setCountry("US").setEncodedPublicKey(encodedPublicKey);
 				System.out.println(supplierVo);
