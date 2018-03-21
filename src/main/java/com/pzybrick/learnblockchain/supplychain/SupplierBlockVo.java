@@ -6,7 +6,7 @@ public class SupplierBlockVo {
 	private String supplierBlockChainUuid;
 	private String hash;
 	private String previousHash;
-	private SupplyChainBlockTransaction supplyChainTransaction;
+	private SupplierBlockTransaction supplyChainTransaction;
 	private long blockTimestamp;
 	private int blockSequence;
 	
@@ -43,7 +43,7 @@ public class SupplierBlockVo {
 		return previousHash;
 	}
 
-	public SupplyChainBlockTransaction getSupplyChainTransaction() {
+	public SupplierBlockTransaction getSupplyChainTransaction() {
 		return supplyChainTransaction;
 	}
 
@@ -65,7 +65,7 @@ public class SupplierBlockVo {
 		return this;
 	}
 
-	public SupplierBlockVo setSupplyChainTransaction(SupplyChainBlockTransaction supplyChainTransaction) {
+	public SupplierBlockVo setSupplyChainTransaction(SupplierBlockTransaction supplyChainTransaction) {
 		this.supplyChainTransaction = supplyChainTransaction;
 		return this;
 	}

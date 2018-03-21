@@ -4,7 +4,6 @@ import java.util.List;
 
 public class SupplierBlockchainVo {
 	private String supplierBlockChainUuid;
-	private String supplierUuid;
 	private List<SupplierBlockVo> supplierBlockVos;
 
 	public List<SupplierBlockVo> getSupplierBlockVos() {
@@ -25,20 +24,10 @@ public class SupplierBlockchainVo {
 		return supplierBlockChainUuid;
 	}
 
-	public String getSupplierUuid() {
-		return supplierUuid;
-	}
-
 	public SupplierBlockchainVo setSupplierBlockChainUuid(String supplierBlockChainUuid) {
 		this.supplierBlockChainUuid = supplierBlockChainUuid;
 		return this;
 	}
-
-	public SupplierBlockchainVo setSupplierUuid(String supplierUuid) {
-		this.supplierUuid = supplierUuid;
-		return this;
-	}
-	
 	
 
 }

@@ -12,7 +12,6 @@ import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -100,10 +99,10 @@ public class BlockchainUtils {
 	}
 
 	// Tacks in array of transactions and returns a merkle root.
-	public static String getMerkleRoot(List<SupplyChainBlockTransaction> transactions) {
+	public static String getMerkleRoot(List<SupplierBlockTransaction> transactions) {
 		int count = transactions.size();
 		ArrayList<String> previousTreeLayer = new ArrayList<String>();
-		for (SupplyChainBlockTransaction transaction : transactions) {
+		for (SupplierBlockTransaction transaction : transactions) {
 			previousTreeLayer.add(transaction.transactionId);
 		}
 		ArrayList<String> treeLayer = previousTreeLayer;

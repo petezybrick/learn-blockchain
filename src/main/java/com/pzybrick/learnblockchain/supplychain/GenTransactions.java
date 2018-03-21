@@ -50,7 +50,7 @@ public class GenTransactions {
 		final int NUM_TEST_SUPPLIERS = 10;
 		initKeysMaster();
 		// TODO: Get all of the SupplierBlockchainVo's
-		simSupplierBlock
+		//simSupplierBlock
 		List<KeyPair> supplierKeyPairs = new ArrayList<KeyPair>();
 		for( int i=0 ; i<NUM_TEST_SUPPLIERS ; i++ ) {
 			supplierKeyPairs.add( BlockchainUtils.generateKeyPair());
@@ -58,7 +58,7 @@ public class GenTransactions {
 		int blockSequence = 0;
 		String previousHash = "0";
 		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
-			SupplyChainBlockTransaction supplyChainTransaction = new SupplyChainBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
+			SupplierBlockTransaction supplyChainTransaction = new SupplierBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
 			SupplierBlockVo supplierBlock = new SupplierBlockVo()
 					.setPreviousHash(previousHash).setSupplyChainTransaction(supplyChainTransaction)
 					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockChainUuid("TODO").updateHash();
