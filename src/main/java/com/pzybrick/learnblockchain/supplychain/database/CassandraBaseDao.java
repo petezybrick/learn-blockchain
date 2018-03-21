@@ -40,7 +40,7 @@ public class CassandraBaseDao {
 	private static final Logger logger = LogManager.getLogger(CassandraBaseDao.class);
 	
 	/** The Constant DEFAULT_KEYSPACE_NAME. */
-	public static final String DEFAULT_KEYSPACE_NAME = "supply-blockchain";
+	public static final String DEFAULT_KEYSPACE_NAME = "supply_blockchain";
 	
 	/** The cluster. */
 	private static Cluster cluster;

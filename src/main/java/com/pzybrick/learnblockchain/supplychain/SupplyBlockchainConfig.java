@@ -21,14 +21,13 @@ package com.pzybrick.learnblockchain.supplychain;
 
 import java.io.Serializable;
 
-import javax.annotation.Generated;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.pzybrick.learnblockchain.supplychain.database.CassandraBaseDao;
 import com.pzybrick.learnblockchain.supplychain.database.ConfigDao;
 
@@ -36,7 +35,8 @@ import com.pzybrick.learnblockchain.supplychain.database.ConfigDao;
 /**
  * The Class SupplyBlockchainConfig.
  */
-@Generated("org.jsonschema2pojo")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(SnakeCaseStrategy.class)
 public class SupplyBlockchainConfig implements Serializable {
 	
 	/** The Constant serialVersionUID. */
@@ -49,46 +49,46 @@ public class SupplyBlockchainConfig implements Serializable {
 	private String supplyBlockchainConfigJsonKey;
 	
 	/** The contact point. */
+	@JsonIgnore
 	private String contactPoint;
 	
 	/** The keyspace name. */
+	@JsonIgnore
 	private String keyspaceName;
 	
 	/** The master config. */
 	private static SupplyBlockchainConfig supplyBlockchainConfig;
 	
-	/** The rule svc class name. */
-	@Expose
-	private String ruleSvcClassName;
-	
-	
 	/** The jdbc driver class name. */
-	@Expose
 	private String jdbcDriverClassName;
 	
 	/** The jdbc insert block size. */
-	@Expose
 	private Integer jdbcInsertBlockSize;
 	
 	/** The jdbc login. */
-	@Expose
 	private String jdbcLogin;
 	
 	/** The jdbc password. */
-	@Expose
 	private String jdbcPassword;
 	
 	/** The jdbc url. */
-	@Expose
 	private String jdbcUrl;	
 
 
 	/**
 	 * Instantiates a new master config.
 	 */
-	private SupplyBlockchainConfig() {
+	public SupplyBlockchainConfig() {
 		
 	}
+
+
+	/**
+	 * Instantiates a new master config.
+	 */
+//	private SupplyBlockchainConfig() {
+//		
+//	}
 
 	
 	/**
@@ -125,8 +125,7 @@ public class SupplyBlockchainConfig implements Serializable {
 			try {
 				ConfigDao.connect(contactPoint, keyspaceName);
 				String rawJson = ConfigDao.findConfigJson(supplyBlockchainConfigJsonKey);
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				supplyBlockchainConfigNew = gson.fromJson(rawJson, SupplyBlockchainConfig.class);
+				supplyBlockchainConfigNew = BlockchainUtils.objectMapper.readValue(rawJson, SupplyBlockchainConfig.class);
 				supplyBlockchainConfigNew.setContactPoint(contactPoint);
 				supplyBlockchainConfigNew.setKeyspaceName(keyspaceName);
 				SupplyBlockchainConfig.supplyBlockchainConfig = supplyBlockchainConfigNew;
@@ -167,12 +166,7 @@ public class SupplyBlockchainConfig implements Serializable {
 		return keyspaceName;
 	}
 
-
-	public String getRuleSvcClassName() {
-		return ruleSvcClassName;
-	}
-
-
+	
 	public String getJdbcDriverClassName() {
 		return jdbcDriverClassName;
 	}
@@ -216,12 +210,6 @@ public class SupplyBlockchainConfig implements Serializable {
 	}
 
 
-	public SupplyBlockchainConfig setRuleSvcClassName(String ruleSvcClassName) {
-		this.ruleSvcClassName = ruleSvcClassName;
-		return this;
-	}
-
-
 	public SupplyBlockchainConfig setJdbcDriverClassName(String jdbcDriverClassName) {
 		this.jdbcDriverClassName = jdbcDriverClassName;
 		return this;
@@ -255,8 +243,8 @@ public class SupplyBlockchainConfig implements Serializable {
 	@Override
 	public String toString() {
 		return "SupplyBlockchainConfig [supplyBlockchainConfigJsonKey=" + supplyBlockchainConfigJsonKey + ", contactPoint=" + contactPoint + ", keyspaceName="
-				+ keyspaceName + ", ruleSvcClassName=" + ruleSvcClassName + ", jdbcDriverClassName=" + jdbcDriverClassName + ", jdbcInsertBlockSize="
-				+ jdbcInsertBlockSize + ", jdbcLogin=" + jdbcLogin + ", jdbcPassword=" + jdbcPassword + ", jdbcUrl=" + jdbcUrl + "]";
+				+ keyspaceName + ", jdbcDriverClassName=" + jdbcDriverClassName + ", jdbcInsertBlockSize=" + jdbcInsertBlockSize + ", jdbcLogin=" + jdbcLogin
+				+ ", jdbcPassword=" + jdbcPassword + ", jdbcUrl=" + jdbcUrl + "]";
 	}
 	
 

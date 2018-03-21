@@ -4,14 +4,14 @@ import java.util.List;
 
 public class LotCanineNutrition {
 	private String lotNumber;
-	private List<SupplierBlockchain> supplierBlockchains;
+	private List<SupplierBlockchainVo> supplierBlockchains;
 	private List<String> ingredientNames;
 	
 	
 	public String getLotNumber() {
 		return lotNumber;
 	}
-	public List<SupplierBlockchain> getSupplierBlockchains() {
+	public List<SupplierBlockchainVo> getSupplierBlockchains() {
 		return supplierBlockchains;
 	}
 	public List<String> getIngredientNames() {
@@ -21,7 +21,7 @@ public class LotCanineNutrition {
 		this.lotNumber = lotNumber;
 		return this;
 	}
-	public LotCanineNutrition setSupplierBlockchains(List<SupplierBlockchain> supplierBlockchains) {
+	public LotCanineNutrition setSupplierBlockchains(List<SupplierBlockchainVo> supplierBlockchains) {
 		this.supplierBlockchains = supplierBlockchains;
 		return this;
 	}

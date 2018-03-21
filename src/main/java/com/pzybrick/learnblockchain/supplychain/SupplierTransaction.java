@@ -11,7 +11,7 @@ public class SupplierTransaction {
 	private String supplierName;
 	private String supplierCategory;
 	private String supplierSubCategory;
-	private String lotNumber;
+	private String supplierLotNumber;
 	private String itemNumber;
 	private String description;
 	private int qty;
@@ -29,8 +29,8 @@ public class SupplierTransaction {
 	public String getSupplierSubCategory() {
 		return supplierSubCategory;
 	}
-	public String getLotNumber() {
-		return lotNumber;
+	public String getSupplierLotNumber() {
+		return supplierLotNumber;
 	}
 	public String getItemNumber() {
 		return itemNumber;
@@ -59,8 +59,8 @@ public class SupplierTransaction {
 		this.supplierSubCategory = supplierSubCategory;
 		return this;
 	}
-	public SupplierTransaction setLotNumber(String lotNumber) {
-		this.lotNumber = lotNumber;
+	public SupplierTransaction setSupplierLotNumber(String supplierLotNumber) {
+		this.supplierLotNumber = supplierLotNumber;
 		return this;
 	}
 	public SupplierTransaction setItemNumber(String itemNumber) {
@@ -101,7 +101,7 @@ public class SupplierTransaction {
 	public String toString() {
 		return "SupplierTransaction [dunsNumber=" + dunsNumber + ", supplierName=" + supplierName
 				+ ", supplierCategory=" + supplierCategory + ", supplierSubCategory=" + supplierSubCategory
-				+ ", lotNumber=" + lotNumber + ", itemNumber=" + itemNumber + ", description=" + description + ", qty="
+				+ ", lotNumber=" + supplierLotNumber + ", itemNumber=" + itemNumber + ", description=" + description + ", qty="
 				+ qty + ", units=" + units + ", shippedDateIso8601=" + shippedDateIso8601 + ", rcvdDateIso8601="
 				+ rcvdDateIso8601 + "]";
 	}

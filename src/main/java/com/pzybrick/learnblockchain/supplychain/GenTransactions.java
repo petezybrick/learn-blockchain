@@ -24,7 +24,7 @@ public class GenTransactions {
 	public static final String encodedPublicKey = 
 		"3049301306072A8648CE3D020106082A8648CE3D03010103320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
 	public static final String encryptionAlgorithm = "ECDSA";
-	private List<SupplierBlock> supplierBlockchain = new ArrayList<SupplierBlock>();
+	private List<SupplierBlockVo> supplierBlockVos = new ArrayList<SupplierBlockVo>();
 	private PrivateKey privateKeyMaster;	
 	private PublicKey publicKeyMaster;
 	public static final ObjectMapper objectMapper;
@@ -49,22 +49,25 @@ public class GenTransactions {
 	public void process() throws Exception  {
 		final int NUM_TEST_SUPPLIERS = 10;
 		initKeysMaster();
-		// TODO: supplier database with their public keys
+		// TODO: Get all of the SupplierBlockchainVo's
+		simSupplierBlock
 		List<KeyPair> supplierKeyPairs = new ArrayList<KeyPair>();
 		for( int i=0 ; i<NUM_TEST_SUPPLIERS ; i++ ) {
 			supplierKeyPairs.add( BlockchainUtils.generateKeyPair());
 		}
-		int sequence = 0;
+		int blockSequence = 0;
 		String previousHash = "0";
 		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
-			SupplyChainTransaction supplyChainTransaction = new SupplyChainTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + sequence, privateKeyMaster, sequence);
-			SupplierBlock supplierBlock = new SupplierBlock( previousHash, supplyChainTransaction, sequence );
-			supplierBlockchain.add( supplierBlock );
-			sequence++;
+			SupplyChainBlockTransaction supplyChainTransaction = new SupplyChainBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
+			SupplierBlockVo supplierBlock = new SupplierBlockVo()
+					.setPreviousHash(previousHash).setSupplyChainTransaction(supplyChainTransaction)
+					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockChainUuid("TODO").updateHash();
+			supplierBlockVos.add( supplierBlock );
+			blockSequence++;
 			previousHash = supplierBlock.getHash(); 
 		}
 		
-		for( SupplierBlock supplierBlock : supplierBlockchain ) {
+		for( SupplierBlockVo supplierBlock : supplierBlockVos ) {
 			logger.info(supplierBlock.toString());
 		}
 		logger.info("isChainValid " + isChainValid() );
@@ -77,13 +80,13 @@ public class GenTransactions {
 	}
 
 	public Boolean isChainValid() {
-		SupplierBlock currentBlock; 
-		SupplierBlock previousBlock; 
+		SupplierBlockVo currentBlock; 
+		SupplierBlockVo previousBlock; 
 		
 		//loop through blockchain to check hashes:
-		for(int i=1; i < supplierBlockchain.size(); i++) {
-			currentBlock = supplierBlockchain.get(i);
-			previousBlock = supplierBlockchain.get(i-1);
+		for(int i=1; i < supplierBlockVos.size(); i++) {
+			currentBlock = supplierBlockVos.get(i);
+			previousBlock = supplierBlockVos.get(i-1);
 			//compare registered hash and calculated hash:
 			if(!currentBlock.getHash().equals(currentBlock.calculateHash()) ){
 				logger.info("Current Hashes not equal");			

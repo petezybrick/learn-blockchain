@@ -4,7 +4,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
 
-public class SupplyChainTransaction {
+public class SupplyChainBlockTransaction {
 
 	public String transactionId;
 	public PublicKey publicKeyFrom;
@@ -14,7 +14,7 @@ public class SupplyChainTransaction {
 	private int transactionSequence = 0;
 
 	// Constructor:
-	public SupplyChainTransaction(PublicKey publicKeyFrom, PublicKey publicKeyTo, String transactionData, PrivateKey privateKeyFrom,
+	public SupplyChainBlockTransaction(PublicKey publicKeyFrom, PublicKey publicKeyTo, String transactionData, PrivateKey privateKeyFrom,
 			int transactionSequence) {
 		this.publicKeyFrom = publicKeyFrom;
 		this.publicKeyTo = publicKeyTo;

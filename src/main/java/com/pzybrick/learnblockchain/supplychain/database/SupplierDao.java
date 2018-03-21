@@ -1,20 +1,59 @@
 package com.pzybrick.learnblockchain.supplychain.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.pzybrick.iote2e.common.config.MasterConfig;
+
+import com.pzybrick.learnblockchain.supplychain.SupplyBlockchainConfig;
 
 
 public class SupplierDao {
 	private static final Logger logger = LogManager.getLogger(SupplierDao.class);
+	private static String sqlTruncate = "TRUNCATE supplier";
 	private static String sqlDeleteByPk = "DELETE FROM supplier WHERE supplier_uuid=?";
 	private static String sqlInsert = "INSERT INTO supplier (supplier_uuid,duns_number,supplier_name,supplier_category,supplier_sub_category,state_province,country,encoded_public_key,update_ts) VALUES (?,?,?,?,?,?,?,?,?)";
 	private static String sqlFindByPk = "SELECT supplier_uuid,duns_number,supplier_name,supplier_category,supplier_sub_category,state_province,country,encoded_public_key,insert_ts,update_ts FROM supplier WHERE supplier_uuid=?";
+
+	public static void truncate( ) throws Exception {
+		try (Connection con = PooledDataSource.getInstance().getConnection();
+				Statement stmt = con.createStatement() ){
+			stmt.execute(sqlTruncate);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		} 
+	}
+	
+	public static void insertBatchList( List<SupplierVo> supplierVos ) throws Exception {
+		//TODO: JDBC batch
+		try (Connection con = PooledDataSource.getInstance().getConnection();
+				PreparedStatement pstmt = con.prepareStatement(sqlInsert);){
+			
+			con.setAutoCommit(false);
+			for( SupplierVo supplierVo : supplierVos ) {
+				int offset = 1;
+				pstmt.setString( offset++, supplierVo.getSupplierUuid() );
+				pstmt.setString( offset++, supplierVo.getDunsNumber() );
+				pstmt.setString( offset++, supplierVo.getSupplierName() );
+				pstmt.setString( offset++, supplierVo.getSupplierCategory() );
+				pstmt.setString( offset++, supplierVo.getSupplierSubCategory() );
+				pstmt.setString( offset++, supplierVo.getStateProvince() );
+				pstmt.setString( offset++, supplierVo.getCountry() );
+				pstmt.setString( offset++, supplierVo.getEncodedPublicKey() );
+				pstmt.setTimestamp( offset++, supplierVo.getUpdateTs() );
+				pstmt.execute();
+			}
+			con.commit();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
 
 	public static void insertBatchMode( Connection con, SupplierVo supplierVo ) throws Exception {
 		PreparedStatement pstmt = null;

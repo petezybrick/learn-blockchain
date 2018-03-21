@@ -77,6 +77,11 @@ public class PooledDataSource {
 		}
 	}
 	
+	public static PooledDataSource getInstance( ) throws Exception {
+		if(pooledDataSource != null ) return pooledDataSource;
+		else throw new Exception("SupplyBlockchainConfig not initialized");
+	}
+	
 	
 	/**
 	 * Gets the connection.

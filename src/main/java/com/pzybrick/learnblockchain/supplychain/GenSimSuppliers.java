@@ -24,8 +24,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pzybrick.learnblockchain.supplychain.SimBlockchainSequenceItem.DescCatSubcatItem;
-import com.pzybrick.learnblockchain.supplychain.database.SupplierTransactionVo;
-import com.pzybrick.learnblockchain.supplychain.database.SupplierVoBackup;
+import com.pzybrick.learnblockchain.supplychain.database.PooledDataSource;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierDao;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierVo;
 
 public class GenSimSuppliers {
 	private static final Logger logger = LogManager.getLogger(GenSimSuppliers.class);
@@ -49,6 +50,7 @@ public class GenSimSuppliers {
 	private ZonedDateTime simDate;
 	private int simdDateDaysOffset;
 	private String pathSimBlockchainSequenceItemsJson;
+	private SupplyBlockchainConfig config;
 
 	public GenSimSuppliers(String pathSimBlockchainSequenceItemsJson) throws Exception {
 		this.pathSimBlockchainSequenceItemsJson = pathSimBlockchainSequenceItemsJson;
@@ -65,20 +67,24 @@ public class GenSimSuppliers {
 			GenSimSuppliers genSimSuppliers = new GenSimSuppliers(args[0]);
 			genSimSuppliers.process();
 		} catch (Exception e) {
-			// TODO: handle exception
+			logger.error(e.getMessage(), e);
 		}
 	}
 
 	public void process() throws Exception {
 		try {
-			List<SupplierVoBackup> supplierVos = GenSimSuppliers.createSupplierVos();
-			// farm,rice supplier,seed supplier,fert coop,rice ABCPetFood
-			Map<String, List<SupplierVoBackup>> mapSupplierVos = new HashMap<String, List<SupplierVoBackup>>();
-			for (SupplierVoBackup supplierVo : supplierVos) {
+			config = SupplyBlockchainConfig.getInstance( System.getenv("ENV"), System.getenv("CONTACT_POINT"),
+					System.getenv("KEYSPACE_NAME") );
+			PooledDataSource.getInstance( config ); 
+
+			List<SupplierVo> supplierVos = GenSimSuppliers.createSupplierVos();
+			// farm,rice supplier,seed supplier,fert, coop,rice ABCPetFood
+			Map<String, List<SupplierVo>> mapSupplierVos = new HashMap<String, List<SupplierVo>>();
+			for (SupplierVo supplierVo : supplierVos) {
 				String key = supplierVo.getSupplierCategory() + "|" + supplierVo.getSupplierSubCategory();
-				List<SupplierVoBackup> supplierVosByKey = mapSupplierVos.get(key);
+				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
 				if (supplierVosByKey == null) {
-					supplierVosByKey = new ArrayList<SupplierVoBackup>();
+					supplierVosByKey = new ArrayList<SupplierVo>();
 					mapSupplierVos.put(key, supplierVosByKey);
 				}
 				supplierVosByKey.add(supplierVo);
@@ -96,7 +102,7 @@ public class GenSimSuppliers {
 			// 3. write the blockchains to Cassandra - need to figure out a way
 			// to do this
 			// x. Lot table - map each lot of dog food back to blockchain
-			Map<String, List<SupplierBlockchain>> mapSimBlockchainsBySourceKey = new HashMap<String, List<SupplierBlockchain>>();
+			Map<String, List<SupplierBlockchainVo>> mapSimBlockchainsBySourceKey = new HashMap<String, List<SupplierBlockchainVo>>();
 			List<SimBlockchainSequenceItem> simBlockchainSequenceItems = GenTransactions.objectMapper.readValue(new File(pathSimBlockchainSequenceItemsJson),
 					new TypeReference<List<SimBlockchainSequenceItem>>() {
 					});
@@ -118,14 +124,14 @@ public class GenSimSuppliers {
 				String lotNumberRoot = simProdWeek.format(fmt) + "-";
 				int lotNumberSeq = 1;
 				for( int j=0 ; j<NUM_SIM_LOTS ; j++ ) {
-					List<SupplierBlockchain> supplierBlockchains = new ArrayList<SupplierBlockchain>();
+					List<SupplierBlockchainVo> supplierBlockchains = new ArrayList<SupplierBlockchainVo>();
 					LotCanineNutrition lotCanineNutrition = new LotCanineNutrition()
 							.setLotNumber(lotNumberRoot +  lotNumberSeq)
 							.setIngredientNames(supplierTypes)
 							.setSupplierBlockchains(supplierBlockchains);
 					lotCanineNutritions.add(lotCanineNutrition);
 					for( String supplierType : supplierTypes ) {
-						List<SupplierBlockchain> list = mapSimBlockchainsBySourceKey.get(supplierType);
+						List<SupplierBlockchainVo> list = mapSimBlockchainsBySourceKey.get(supplierType);
 						int offset = random.nextInt(list.size());
 						//System.out.println(offset + " " + list.size());
 						supplierBlockchains.add( list.get(offset));
@@ -141,19 +147,22 @@ public class GenSimSuppliers {
 			logger.error(e.getMessage(), e);
 		}
 	}
-
-	private List<SupplierBlockchain> genSimBlockchains(Map<String, List<SupplierVoBackup>> mapSupplierVos, List<DescCatSubcatItem> descCatSubcatItems)
+>>> Stopped here
+>>> Next steps: SupplBlockchainVo, SupplierBlockVo, SupplierTransactionVo, 
+					
+	private List<SupplierBlockchainVo> genSimBlockchains(Map<String, List<SupplierVo>> mapSupplierVos, List<DescCatSubcatItem> descCatSubcatItems)
 			throws Exception {
-		List<SupplierBlockchain> supplierBlockChains = new ArrayList<SupplierBlockchain>();
+		List<SupplierBlockchainVo> supplierBlockChains = new ArrayList<SupplierBlockchainVo>();
 		for (int i = 0; i < NUM_SIM_CHAINS_PER_SOURCE; i++) {
 			int sequence = 0;
 			String previousHash = "0";
-			List<SupplierBlock> supplierBlocks = new ArrayList<SupplierBlock>();
+			List<SupplierBlockVo> supplierBlocks = new ArrayList<SupplierBlockVo>();
 			for (DescCatSubcatItem descCatSubcatItem : descCatSubcatItems) {
 				String key = descCatSubcatItem.getCategory() + "|" + descCatSubcatItem.getSubCategory();
-				List<SupplierVoBackup> supplierVosByKey = mapSupplierVos.get(key);
-				SupplierVoBackup supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
-				SupplierTransactionVo supplierTransaction = new SupplierTransactionVo().setDunsNumber(supplierVoRnd.getDunsNumber())
+				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
+				SupplierVo supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
+				// TODO: multiple lots per supplier, each with a different date
+				SupplierTransaction supplierTransaction = new SupplierTransaction().setDunsNumber(supplierVoRnd.getDunsNumber())
 						.setSupplierName(supplierVoRnd.getSupplierName()).setSupplierCategory(supplierVoRnd.getSupplierCategory())
 						.setSupplierSubCategory(supplierVoRnd.getSupplierSubCategory()).setSupplierLotNumber("TODO").setItemNumber("TODO")
 						.setDescription(descCatSubcatItem.getDesc()).setQty(100).setUnits("TODO")
@@ -161,31 +170,32 @@ public class GenSimSuppliers {
 						.setRcvdDateIso8601(simDate.plusDays(simdDateDaysOffset++).format(DateTimeFormatter.ISO_INSTANT));
 				String transactionData = GenTransactions.objectMapper.writeValueAsString(supplierTransaction);
 				PublicKey publicKeyTo = keyFactory.generatePublic(new X509EncodedKeySpec(BlockchainUtils.toByteArray(supplierVoRnd.getEncodedPublicKey())));
-				SupplyChainTransaction supplyChainTransaction = new SupplyChainTransaction(publicKeyFrom, publicKeyTo, transactionData, privateKeyFrom);
-				SupplierBlock supplierBlock = new SupplierBlock(previousHash, supplyChainTransaction, sequence);
+				SupplyChainBlockTransaction supplyChainTransaction = 
+						new SupplyChainBlockTransaction(publicKeyFrom, publicKeyTo, transactionData, privateKeyFrom, sequence);
+				SupplierBlockVo supplierBlock = new SupplierBlockVo(previousHash, supplyChainTransaction, sequence);
 				supplierBlocks.add(supplierBlock);
 				sequence++;
 				previousHash = supplierBlock.getHash();
 			}
 			System.out.println("+++++++++++++++++++++++++++++++++++");
-			for (SupplierBlock supplierBlock : supplierBlocks) {
+			for (SupplierBlockVo supplierBlock : supplierBlocks) {
 				System.out.println(supplierBlock);
 			}
-			supplierBlockChains.add(new SupplierBlockchain().setSupplierBlocks(supplierBlocks));
+			supplierBlockChains.add(new SupplierBlockchainVo().setSupplierBlockVos(supplierBlocks));
 		}
 		return supplierBlockChains;
 	}
 
-	public static List<SupplierVoBackup> createSupplierVos() throws Exception {
+	public static List<SupplierVo> createSupplierVos() throws Exception {
 		char prefChar = 'A';
 		int dunsNumber = 1;
-		List<SupplierVoBackup> supplierVos = new ArrayList<SupplierVoBackup>();
+		List<SupplierVo> supplierVos = new ArrayList<SupplierVo>();
 		for (int i = 0; i < NUM_SIM_EACH_SUPPLIER; i++) {
 			for (int j = 0; j < triples.length; j += 3) {
 				KeyPair keyPair = BlockchainUtils.generateKeyPair();
 				String encodedPublicKey = BlockchainUtils.toHexString(keyPair.getPublic().getEncoded());
 				String supplierName = prefChar + String.valueOf(i + 1) + " " + triples[j];
-				SupplierVoBackup supplierVo = new SupplierVoBackup().setSupplierUuid(UUID.randomUUID().toString()).setDunsNumber(String.format("%09d", dunsNumber++))
+				SupplierVo supplierVo = new SupplierVo().setSupplierUuid(BlockchainUtils.generateSortabledUuid()).setDunsNumber(String.format("%09d", dunsNumber++))
 						.setSupplierName(supplierName).setSupplierCategory(triples[j + 1]).setSupplierSubCategory(triples[j + 2])
 						.setStateProvince(randomStateProvince()).setCountry("US").setEncodedPublicKey(encodedPublicKey);
 				System.out.println(supplierVo);
@@ -196,6 +206,9 @@ public class GenSimSuppliers {
 			else
 				prefChar = 'A';
 		}
+		SupplierDao.truncate( );
+		SupplierDao.insertBatchList( supplierVos );
+
 		return supplierVos;
 	}
 

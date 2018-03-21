@@ -1,6 +1,5 @@
 package com.pzybrick.learnblockchain.supplychain;
 
-import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,8 +12,39 @@ import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
+
+import javax.xml.bind.DatatypeConverter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.uuid.Generators;
 
 public class BlockchainUtils {
+	public static final ObjectMapper objectMapper;
+
+
+	/**
+	 * Instantiates a new omh router handler spark batch impl.
+	 *
+	 * @throws Exception the exception
+	 */
+	static {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+	}
+
+	public static String generateSortabledUuid() throws Exception {
+		String rawUuid = Generators.timeBasedGenerator().generate().toString();
+		String sortableUuid = rawUuid.substring(14, 18) + "-" +  rawUuid.substring(9, 13) + "-" +  rawUuid.substring(0,8) + "-" +  
+				rawUuid.substring(19,23) + "-" +  rawUuid.substring(24);
+		//116af1b0-2ca4-11e8-9911-4b0c67764edc
+		//012345678911234567892123456789312345
+		return sortableUuid;
+	}
+	
+	
+	
 	// Applies Sha256 to a string and returns the result.
 	public static String applySha256(String input) {
 		try {
@@ -70,10 +100,10 @@ public class BlockchainUtils {
 	}
 
 	// Tacks in array of transactions and returns a merkle root.
-	public static String getMerkleRoot(List<SupplyChainTransaction> transactions) {
+	public static String getMerkleRoot(List<SupplyChainBlockTransaction> transactions) {
 		int count = transactions.size();
 		ArrayList<String> previousTreeLayer = new ArrayList<String>();
-		for (SupplyChainTransaction transaction : transactions) {
+		for (SupplyChainBlockTransaction transaction : transactions) {
 			previousTreeLayer.add(transaction.transactionId);
 		}
 		ArrayList<String> treeLayer = previousTreeLayer;
