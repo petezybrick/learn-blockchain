@@ -2,6 +2,8 @@ package com.pzybrick.learnblockchain.supplychain;
 
 import java.util.List;
 
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockchainVo;
+
 public class LotCanineNutrition {
 	private String lotNumber;
 	private List<SupplierBlockchainVo> supplierBlockchains;

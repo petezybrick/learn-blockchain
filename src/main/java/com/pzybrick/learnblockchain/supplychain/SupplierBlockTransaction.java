@@ -4,12 +4,13 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public class SupplierBlockTransaction {
-	public String supplierBlockTransactionUuid;
-	public String transactionId;
-	public PublicKey publicKeyFrom;
-	public PublicKey publicKeyTo;
-	public SupplierTransaction supplierTransaction;
-	public byte[] signature;
+	private String supplierBlockTransactionUuid;
+	private String supplierBlockUuid;
+	private String transactionId;
+	private PublicKey publicKeyFrom;
+	private PublicKey publicKeyTo;
+	private SupplierTransaction supplierTransaction;
+	private byte[] signature;
 	private int transactionSequence = 0;
 
 	// Constructor:

@@ -60,8 +60,8 @@ public class GenTransactions {
 		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
 			SupplierBlockTransaction supplyChainTransaction = new SupplierBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
 			SupplierBlockVo supplierBlock = new SupplierBlockVo()
-					.setPreviousHash(previousHash).setSupplyChainTransaction(supplyChainTransaction)
-					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockChainUuid("TODO").updateHash();
+					.setPreviousHash(previousHash).setSupplierBlockTransaction(supplyChainTransaction)
+					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockchainUuid("TODO").updateHash();
 			supplierBlockVos.add( supplierBlock );
 			blockSequence++;
 			previousHash = supplierBlock.getHash(); 

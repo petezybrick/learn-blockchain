@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pzybrick.learnblockchain.supplychain.SimBlockchainSequenceItem.DescCatSubcatItem;
 import com.pzybrick.learnblockchain.supplychain.database.PooledDataSource;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockchainVo;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierDao;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierVo;
 
@@ -109,7 +110,7 @@ public class GenSimSuppliers {
 
 			for (SimBlockchainSequenceItem simBlockchainSequenceItem : simBlockchainSequenceItems) {
 				mapSimBlockchainsBySourceKey.put(simBlockchainSequenceItem.getSupplierType(),
-						genSimBlockchains(mapSupplierVos, simBlockchainSequenceItem.getDescCatSubcatItems()));
+						genSimBlockchains(mapSupplierVos, simBlockchainSequenceItem));
 			}
 			
 			// a Lot of Canine Nutrition consists of Ingredients, each Ingredient comes from a chain of suppliers
@@ -150,7 +151,8 @@ public class GenSimSuppliers {
 //>>> Stopped here
 //>>> Next steps: SupplBlockchainVo, SupplierBlockVo, SupplierTransactionVo, 
 					
-	private List<SupplierBlockchainVo> genSimBlockchains(Map<String, List<SupplierVo>> mapSupplierVos, List<DescCatSubcatItem> descCatSubcatItems)
+	private List<SupplierBlockchainVo> genSimBlockchains(Map<String, List<SupplierVo>> mapSupplierVos, 
+			SimBlockchainSequenceItem simBlockchainSequenceItem)
 			throws Exception {
 		List<SupplierBlockchainVo> supplierBlockChains = new ArrayList<SupplierBlockchainVo>();
 		String supplierBlockChainUuid = BlockchainUtils.generateSortabledUuid();
@@ -158,7 +160,7 @@ public class GenSimSuppliers {
 			int blockSequence = 0;
 			String previousHash = "0";
 			List<SupplierBlockVo> supplierBlocks = new ArrayList<SupplierBlockVo>();
-			for (DescCatSubcatItem descCatSubcatItem : descCatSubcatItems) {
+			for (DescCatSubcatItem descCatSubcatItem : simBlockchainSequenceItem.getDescCatSubcatItems()) {
 				String key = descCatSubcatItem.getCategory() + "|" + descCatSubcatItem.getSubCategory();
 				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
 				SupplierVo supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
@@ -178,8 +180,8 @@ public class GenSimSuppliers {
 						.setSupplierTransaction(supplierTransaction).setTransactionSequence(blockSequence).updateTransactionId().generateSignature(privateKeyFrom);
 				String supplierBlockUuid = BlockchainUtils.generateSortabledUuid();
 				SupplierBlockVo supplierBlock = new SupplierBlockVo()
-						.setPreviousHash(previousHash).setSupplyChainTransaction(supplierBlockTransaction)
-						.setBlockSequence(blockSequence).setSupplierBlockUuid(supplierBlockUuid).setSupplierBlockChainUuid(supplierBlockChainUuid).updateHash();
+						.setPreviousHash(previousHash).setSupplierBlockTransaction(supplierBlockTransaction)
+						.setBlockSequence(blockSequence).setSupplierBlockUuid(supplierBlockUuid).setSupplierBlockchainUuid(supplierBlockChainUuid).updateHash();
 				supplierBlocks.add(supplierBlock);
 				blockSequence++;
 				previousHash = supplierBlock.getHash();
@@ -188,11 +190,13 @@ public class GenSimSuppliers {
 			for (SupplierBlockVo supplierBlock : supplierBlocks) {
 				System.out.println(supplierBlock);
 			}
-			supplierBlockChains.add(new SupplierBlockchainVo().setSupplierBlockChainUuid(supplierBlockChainUuid).setSupplierBlockVos(supplierBlocks));
+			supplierBlockChains.add(new SupplierBlockchainVo().setSupplierBlockChainUuid(supplierBlockChainUuid)
+					.setSupplierType(simBlockchainSequenceItem.getSupplierType()).setSupplierBlockVos(supplierBlocks));
 		}
 		return supplierBlockChains;
 	}
 
+	
 	public static List<SupplierVo> createSupplierVos() throws Exception {
 		char prefChar = 'A';
 		int dunsNumber = 1;

@@ -3,10 +3,10 @@ package com.pzybrick.learnblockchain.supplychain;
 public class SupplierBlockVo {
 	
 	private String supplierBlockUuid;
-	private String supplierBlockChainUuid;
+	private String supplierBlockchainUuid;
 	private String hash;
 	private String previousHash;
-	private SupplierBlockTransaction supplyChainTransaction;
+	private SupplierBlockTransaction supplierBlockTransaction;
 	private long blockTimestamp;
 	private int blockSequence;
 	
@@ -20,7 +20,7 @@ public class SupplierBlockVo {
 		this.hash = BlockchainUtils.applySha256( 
 			this.previousHash +
 			Long.toString(blockTimestamp) +
-			this.supplyChainTransaction + 
+			this.supplierBlockTransaction + 
 			Integer.toString(this.blockSequence)
 			);
 		return this;
@@ -30,7 +30,7 @@ public class SupplierBlockVo {
 		return BlockchainUtils.applySha256( 
 			this.previousHash +
 			Long.toString(blockTimestamp) +
-			this.supplyChainTransaction + 
+			this.supplierBlockTransaction + 
 			Integer.toString(this.blockSequence)
 			);
 	}
@@ -43,8 +43,8 @@ public class SupplierBlockVo {
 		return previousHash;
 	}
 
-	public SupplierBlockTransaction getSupplyChainTransaction() {
-		return supplyChainTransaction;
+	public SupplierBlockTransaction getSupplierBlockTransaction() {
+		return supplierBlockTransaction;
 	}
 
 	public long getBlockTimestamp() {
@@ -65,8 +65,8 @@ public class SupplierBlockVo {
 		return this;
 	}
 
-	public SupplierBlockVo setSupplyChainTransaction(SupplierBlockTransaction supplyChainTransaction) {
-		this.supplyChainTransaction = supplyChainTransaction;
+	public SupplierBlockVo setSupplierBlockTransaction(SupplierBlockTransaction supplierBlockTransaction) {
+		this.supplierBlockTransaction = supplierBlockTransaction;
 		return this;
 	}
 
@@ -82,8 +82,8 @@ public class SupplierBlockVo {
 
 	@Override
 	public String toString() {
-		return "SupplierBlockVo [supplierBlockUuid=" + supplierBlockUuid + ", supplierBlockChainUuid=" + supplierBlockChainUuid + ", hash=" + hash
-				+ ", previousHash=" + previousHash + ", supplyChainTransaction=" + supplyChainTransaction + ", blockTimestamp=" + blockTimestamp
+		return "SupplierBlockVo [supplierBlockUuid=" + supplierBlockUuid + ", supplierBlockchainUuid=" + supplierBlockchainUuid + ", hash=" + hash
+				+ ", previousHash=" + previousHash + ", supplierBlockTransaction=" + supplierBlockTransaction + ", blockTimestamp=" + blockTimestamp
 				+ ", blockSequence=" + blockSequence + "]";
 	}
 
@@ -93,8 +93,8 @@ public class SupplierBlockVo {
 	}
 
 
-	public String getSupplierBlockChainUuid() {
-		return supplierBlockChainUuid;
+	public String getSupplierBlockchainUuid() {
+		return supplierBlockchainUuid;
 	}
 
 
@@ -104,8 +104,8 @@ public class SupplierBlockVo {
 	}
 
 
-	public SupplierBlockVo setSupplierBlockChainUuid(String supplierBlockChainUuid) {
-		this.supplierBlockChainUuid = supplierBlockChainUuid;
+	public SupplierBlockVo setSupplierBlockchainUuid(String supplierBlockchainUuid) {
+		this.supplierBlockchainUuid = supplierBlockchainUuid;
 		return this;
 	}
 	

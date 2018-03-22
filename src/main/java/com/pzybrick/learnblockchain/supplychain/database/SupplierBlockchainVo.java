@@ -1,9 +1,12 @@
-package com.pzybrick.learnblockchain.supplychain;
+package com.pzybrick.learnblockchain.supplychain.database;
 
 import java.util.List;
 
+import com.pzybrick.learnblockchain.supplychain.SupplierBlockVo;
+
 public class SupplierBlockchainVo {
 	private String supplierBlockChainUuid;
+	private String supplierType;
 	private List<SupplierBlockVo> supplierBlockVos;
 
 	public List<SupplierBlockVo> getSupplierBlockVos() {
@@ -28,6 +31,17 @@ public class SupplierBlockchainVo {
 		this.supplierBlockChainUuid = supplierBlockChainUuid;
 		return this;
 	}
+
+	public String getSupplierType() {
+		return supplierType;
+	}
+
+	public SupplierBlockchainVo setSupplierType(String supplierType) {
+		this.supplierType = supplierType;
+		return this;
+	}
+
+
 	
 
 }
