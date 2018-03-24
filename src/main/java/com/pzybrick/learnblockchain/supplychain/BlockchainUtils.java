@@ -1,6 +1,7 @@
 package com.pzybrick.learnblockchain.supplychain;
 
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -9,18 +10,25 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.uuid.Generators;
 
 public class BlockchainUtils {
+	private static final Logger logger = LogManager.getLogger(BlockchainUtils.class);
 	public static final ObjectMapper objectMapper;
+	private static KeyFactory keyFactory;
 
 
 	/**
@@ -31,6 +39,12 @@ public class BlockchainUtils {
 	static {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        try {
+        	keyFactory = KeyFactory.getInstance(GenSimSuppliers.encryptionAlgorithm); 
+        } catch( Exception e ) {
+        	logger.error("Exception creating KeyFactory, {}", e.getMessage(), e );
+        	System.exit(8);
+        }
 	}
 
 	public static String generateSortabledUuid() throws Exception {
@@ -94,8 +108,16 @@ public class BlockchainUtils {
 		}
 	}
 
-	public static String getStringFromKey(Key key) {
+	public static String getEncodedStringFromKey(Key key) {
 		return Base64.getEncoder().encodeToString(key.getEncoded());
+	}
+	
+	public static synchronized PrivateKey genPrivateKey( String encodedKey ) throws Exception {
+		return keyFactory.generatePrivate(  new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encodedKey) ) );
+	}
+	
+	public static synchronized PublicKey genPublicKey( String encodedKey ) throws Exception {
+		return keyFactory.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encodedKey) ));
 	}
 
 	// Tacks in array of transactions and returns a merkle root.
@@ -103,7 +125,7 @@ public class BlockchainUtils {
 		int count = transactions.size();
 		ArrayList<String> previousTreeLayer = new ArrayList<String>();
 		for (SupplierBlockTransaction transaction : transactions) {
-			previousTreeLayer.add(transaction.transactionId);
+			previousTreeLayer.add(transaction.getTransactionId());
 		}
 		ArrayList<String> treeLayer = previousTreeLayer;
 		while (count > 1) {
@@ -134,17 +156,17 @@ public class BlockchainUtils {
 	}
 	
 	
-public static KeyPair generateKeyPair() throws Exception {
-	try {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA","BC");
-		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-		ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime192v1");
-		// Initialize the key generator and generate a KeyPair
-		keyGen.initialize(ecSpec, random);   //256 bytes provides an acceptable security level
-    	KeyPair keyPair = keyGen.generateKeyPair();
-    	return keyPair;
-	}catch(Exception e) {
-		throw new RuntimeException(e);
+	public static KeyPair generateKeyPair() throws Exception {
+		try {
+			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA","BC");
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime192v1");
+			// Initialize the key generator and generate a KeyPair
+			keyGen.initialize(ecSpec, random);   //256 bytes provides an acceptable security level
+	    	KeyPair keyPair = keyGen.generateKeyPair();
+	    	return keyPair;
+		}catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
-}
 }

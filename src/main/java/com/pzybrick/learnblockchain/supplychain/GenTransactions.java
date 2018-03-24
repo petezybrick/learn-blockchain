@@ -18,12 +18,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class GenTransactions {
 	private static final Logger logger = LogManager.getLogger(GenTransactions.class);
-	// Demo/learning purposes only - use Keystore
-	public static final String encodedPrivateKey = 
-		"307B020100301306072A8648CE3D020106082A8648CE3D0301010461305F020101041815D67A1C8826B62A54AD050B65A9812470C04B5E25FDAA1DA00A06082A8648CE3D030101A13403320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
-	public static final String encodedPublicKey = 
-		"3049301306072A8648CE3D020106082A8648CE3D03010103320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
-	public static final String encryptionAlgorithm = "ECDSA";
 	private List<SupplierBlockVo> supplierBlockVos = new ArrayList<SupplierBlockVo>();
 	private PrivateKey privateKeyMaster;	
 	private PublicKey publicKeyMaster;
@@ -55,17 +49,17 @@ public class GenTransactions {
 		for( int i=0 ; i<NUM_TEST_SUPPLIERS ; i++ ) {
 			supplierKeyPairs.add( BlockchainUtils.generateKeyPair());
 		}
-		int blockSequence = 0;
-		String previousHash = "0";
-		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
-			SupplierBlockTransaction supplyChainTransaction = new SupplierBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
-			SupplierBlockVo supplierBlock = new SupplierBlockVo()
-					.setPreviousHash(previousHash).setSupplierBlockTransaction(supplyChainTransaction)
-					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockchainUuid("TODO").updateHash();
-			supplierBlockVos.add( supplierBlock );
-			blockSequence++;
-			previousHash = supplierBlock.getHash(); 
-		}
+//		int blockSequence = 0;
+//		String previousHash = "0";
+//		for( KeyPair supplierKeyPair : supplierKeyPairs ) {
+//			SupplierBlockTransaction supplyChainTransaction = new SupplierBlockTransaction(publicKeyMaster, supplierKeyPair.getPublic(), "test order " + blockSequence, privateKeyMaster, blockSequence);
+//			SupplierBlockVo supplierBlock = new SupplierBlockVo()
+//					.setPreviousHash(previousHash).setSupplierBlockTransaction(supplyChainTransaction)
+//					.setBlockSequence(blockSequence).setSupplierBlockUuid("TODO").setSupplierBlockchainUuid("TODO").updateHash();
+//			supplierBlockVos.add( supplierBlock );
+//			blockSequence++;
+//			previousHash = supplierBlock.getHash(); 
+//		}
 		
 		for( SupplierBlockVo supplierBlock : supplierBlockVos ) {
 			logger.info(supplierBlock.toString());
@@ -74,9 +68,9 @@ public class GenTransactions {
 	}
 	
 	public void initKeysMaster() throws Exception {
-		KeyFactory kf = KeyFactory.getInstance(encryptionAlgorithm); // or "EC" or whatever
-		this.privateKeyMaster = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(encodedPrivateKey) ));
-		this.publicKeyMaster = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(encodedPublicKey) ));
+		KeyFactory kf = KeyFactory.getInstance(GenSimSuppliers.encryptionAlgorithm); // or "EC" or whatever
+		this.privateKeyMaster = kf.generatePrivate(new PKCS8EncodedKeySpec( BlockchainUtils.toByteArray(GenSimSuppliers.encodedPrivateKey) ));
+		this.publicKeyMaster = kf.generatePublic(new X509EncodedKeySpec( BlockchainUtils.toByteArray(GenSimSuppliers.encodedPublicKey) ));
 	}
 
 	public Boolean isChainValid() {

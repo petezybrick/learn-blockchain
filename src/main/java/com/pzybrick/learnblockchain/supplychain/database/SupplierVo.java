@@ -112,6 +112,87 @@ public class SupplierVo {
 		this.updateTs = updateTs;
 		return this;
 	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((country == null) ? 0 : country.hashCode());
+		result = prime * result + ((dunsNumber == null) ? 0 : dunsNumber.hashCode());
+		result = prime * result + ((encodedPublicKey == null) ? 0 : encodedPublicKey.hashCode());
+		result = prime * result + ((insertTs == null) ? 0 : insertTs.hashCode());
+		result = prime * result + ((stateProvince == null) ? 0 : stateProvince.hashCode());
+		result = prime * result + ((supplierCategory == null) ? 0 : supplierCategory.hashCode());
+		result = prime * result + ((supplierName == null) ? 0 : supplierName.hashCode());
+		result = prime * result + ((supplierSubCategory == null) ? 0 : supplierSubCategory.hashCode());
+		result = prime * result + ((supplierUuid == null) ? 0 : supplierUuid.hashCode());
+		result = prime * result + ((updateTs == null) ? 0 : updateTs.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SupplierVo other = (SupplierVo) obj;
+		if (country == null) {
+			if (other.country != null)
+				return false;
+		} else if (!country.equals(other.country))
+			return false;
+		if (dunsNumber == null) {
+			if (other.dunsNumber != null)
+				return false;
+		} else if (!dunsNumber.equals(other.dunsNumber))
+			return false;
+		if (encodedPublicKey == null) {
+			if (other.encodedPublicKey != null)
+				return false;
+		} else if (!encodedPublicKey.equals(other.encodedPublicKey))
+			return false;
+		if (insertTs == null) {
+			if (other.insertTs != null)
+				return false;
+		} else if (!insertTs.equals(other.insertTs))
+			return false;
+		if (stateProvince == null) {
+			if (other.stateProvince != null)
+				return false;
+		} else if (!stateProvince.equals(other.stateProvince))
+			return false;
+		if (supplierCategory == null) {
+			if (other.supplierCategory != null)
+				return false;
+		} else if (!supplierCategory.equals(other.supplierCategory))
+			return false;
+		if (supplierName == null) {
+			if (other.supplierName != null)
+				return false;
+		} else if (!supplierName.equals(other.supplierName))
+			return false;
+		if (supplierSubCategory == null) {
+			if (other.supplierSubCategory != null)
+				return false;
+		} else if (!supplierSubCategory.equals(other.supplierSubCategory))
+			return false;
+		if (supplierUuid == null) {
+			if (other.supplierUuid != null)
+				return false;
+		} else if (!supplierUuid.equals(other.supplierUuid))
+			return false;
+		if (updateTs == null) {
+			if (other.updateTs != null)
+				return false;
+		} else if (!updateTs.equals(other.updateTs))
+			return false;
+		return true;
+	}
 }
 
 // SupplierVo supplierVo = new SupplierVo()

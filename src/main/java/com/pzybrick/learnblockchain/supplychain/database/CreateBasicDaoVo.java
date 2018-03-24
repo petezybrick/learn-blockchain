@@ -239,7 +239,7 @@ public static void main(String[] args) {
 			daoClassRows.add("import java.sql.PreparedStatement;");
 			daoClassRows.add("import org.apache.logging.log4j.LogManager;");
 			daoClassRows.add("import org.apache.logging.log4j.Logger;");
-			daoClassRows.add("import com.pzybrick.iote2e.common.config.MasterConfig;");
+			daoClassRows.add("import com.pzybrick.learnblockchain.supplychain.SupplyBlockchainConfig;");		
 
 			daoClassRows.add("");
 			daoClassRows.add("");
@@ -325,11 +325,11 @@ public static void main(String[] args) {
 			daoClassRows.add("");
 			
 			
-			daoClassRows.add("\tpublic static void insert( MasterConfig masterConfig, " + voName + " " + instanceName + " ) throws Exception {");
+			daoClassRows.add("\tpublic static void insert( SupplyBlockchainConfig supplyBlockchainConfig, " + voName + " " + instanceName + " ) throws Exception {");
 			daoClassRows.add("\t\tConnection con = null;");
 			daoClassRows.add("\t\tPreparedStatement pstmt = null;");
 			daoClassRows.add("\t\ttry {");
-			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(masterConfig).getConnection();");
+			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();");
 			daoClassRows.add("\t\t\tcon.setAutoCommit(false);");
 			daoClassRows.add("\t\t\tpstmt = con.prepareStatement(sqlInsert);");
 			
@@ -375,11 +375,11 @@ public static void main(String[] args) {
 			daoClassRows.add("");		
 			
 			
-			daoClassRows.add("\tpublic static void deleteByPk( MasterConfig masterConfig, " + voName + " " + instanceName + " ) throws Exception {");
+			daoClassRows.add("\tpublic static void deleteByPk( SupplyBlockchainConfig supplyBlockchainConfig, " + voName + " " + instanceName + " ) throws Exception {");
 			daoClassRows.add("\t\tConnection con = null;");
 			daoClassRows.add("\t\tPreparedStatement pstmt = null;");
 			daoClassRows.add("\t\ttry {");
-			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(masterConfig).getConnection();");
+			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();");
 			daoClassRows.add("\t\t\tcon.setAutoCommit(true);");
 			daoClassRows.add("\t\t\tpstmt = con.prepareStatement(sqlDeleteByPk);");
 			
@@ -452,11 +452,11 @@ public static void main(String[] args) {
 			daoClassRows.add("");
 			
 			
-			daoClassRows.add("\tpublic static " + voName + " findByPk( MasterConfig masterConfig, " + voName + " " + instanceName + " ) throws Exception {");
+			daoClassRows.add("\tpublic static " + voName + " findByPk( SupplyBlockchainConfig supplyBlockchainConfig, " + voName + " " + instanceName + " ) throws Exception {");
 			daoClassRows.add("\t\tConnection con = null;");
 			daoClassRows.add("\t\tPreparedStatement pstmt = null;");
 			daoClassRows.add("\t\ttry {");
-			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(masterConfig).getConnection();");
+			daoClassRows.add("\t\t\tcon = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();");
 			daoClassRows.add("\t\t\tcon.setAutoCommit(true);");
 			daoClassRows.add("\t\t\tpstmt = con.prepareStatement(sqlFindByPk);");
 			

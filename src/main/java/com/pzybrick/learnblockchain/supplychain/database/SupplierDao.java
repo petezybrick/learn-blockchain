@@ -14,26 +14,24 @@ import com.pzybrick.learnblockchain.supplychain.SupplyBlockchainConfig;
 
 public class SupplierDao {
 	private static final Logger logger = LogManager.getLogger(SupplierDao.class);
-	private static String sqlTruncate = "TRUNCATE supplier";
+	private static String sqlDeleteAll = "DELETE FROM supplier";
 	private static String sqlDeleteByPk = "DELETE FROM supplier WHERE supplier_uuid=?";
 	private static String sqlInsert = "INSERT INTO supplier (supplier_uuid,duns_number,supplier_name,supplier_category,supplier_sub_category,state_province,country,encoded_public_key,update_ts) VALUES (?,?,?,?,?,?,?,?,?)";
 	private static String sqlFindByPk = "SELECT supplier_uuid,duns_number,supplier_name,supplier_category,supplier_sub_category,state_province,country,encoded_public_key,insert_ts,update_ts FROM supplier WHERE supplier_uuid=?";
 
-	public static void truncate( ) throws Exception {
+
+	public static void deleteAll( ) throws Exception {
 		try (Connection con = PooledDataSource.getInstance().getConnection();
-				Statement stmt = con.createStatement() ){
-			stmt.execute(sqlTruncate);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw e;
-		} 
+				Statement stmt = con.createStatement();){
+			stmt.execute( sqlDeleteAll );
+		}
 	}
 	
 	public static void insertBatchList( List<SupplierVo> supplierVos ) throws Exception {
-		//TODO: JDBC batch
+		final int BATCH_SIZE = 1000;
 		try (Connection con = PooledDataSource.getInstance().getConnection();
 				PreparedStatement pstmt = con.prepareStatement(sqlInsert);){
-			
+			int cnt = 0;
 			con.setAutoCommit(false);
 			for( SupplierVo supplierVo : supplierVos ) {
 				int offset = 1;
@@ -46,12 +44,14 @@ public class SupplierDao {
 				pstmt.setString( offset++, supplierVo.getCountry() );
 				pstmt.setString( offset++, supplierVo.getEncodedPublicKey() );
 				pstmt.setTimestamp( offset++, supplierVo.getUpdateTs() );
-				pstmt.execute();
+				pstmt.addBatch();
+				if( cnt % BATCH_SIZE == 0 ) {
+					pstmt.executeBatch();
+					con.commit();
+				}
 			}
+			pstmt.executeBatch();
 			con.commit();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw e;
 		}
 	}
 
@@ -83,11 +83,11 @@ public class SupplierDao {
 		}
 	}
 
-	public static void insert( SupplyBlockchainConfig masterConfig, SupplierVo supplierVo ) throws Exception {
+	public static void insert( SupplyBlockchainConfig supplyBlockchainConfig, SupplierVo supplierVo ) throws Exception {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		try {
-			con = PooledDataSource.getInstance(masterConfig).getConnection();
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
 			con.setAutoCommit(false);
 			pstmt = con.prepareStatement(sqlInsert);
 			int offset = 1;
@@ -128,11 +128,11 @@ public class SupplierDao {
 		}
 	}
 
-	public static void deleteByPk( SupplyBlockchainConfig masterConfig, SupplierVo supplierVo ) throws Exception {
+	public static void deleteByPk( SupplyBlockchainConfig supplyBlockchainConfig, SupplierVo supplierVo ) throws Exception {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		try {
-			con = PooledDataSource.getInstance(masterConfig).getConnection();
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
 			con.setAutoCommit(true);
 			pstmt = con.prepareStatement(sqlDeleteByPk);
 			int offset = 1;
@@ -184,11 +184,11 @@ public class SupplierDao {
 		}
 	}
 
-	public static SupplierVo findByPk( SupplyBlockchainConfig masterConfig, SupplierVo supplierVo ) throws Exception {
+	public static SupplierVo findByPk( SupplyBlockchainConfig supplyBlockchainConfig, SupplierVo supplierVo ) throws Exception {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		try {
-			con = PooledDataSource.getInstance(masterConfig).getConnection();
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
 			con.setAutoCommit(true);
 			pstmt = con.prepareStatement(sqlFindByPk);
 			int offset = 1;

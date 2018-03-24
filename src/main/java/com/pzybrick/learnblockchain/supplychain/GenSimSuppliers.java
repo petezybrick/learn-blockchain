@@ -8,6 +8,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +25,15 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pzybrick.learnblockchain.supplychain.SimBlockchainSequenceItem.DescCatSubcatItem;
 import com.pzybrick.learnblockchain.supplychain.database.PooledDataSource;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockDao;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockTransactionDao;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockTransactionVo;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockVo;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockchainDao;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierBlockchainVo;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierDao;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierTransactionDao;
+import com.pzybrick.learnblockchain.supplychain.database.SupplierTransactionVo;
 import com.pzybrick.learnblockchain.supplychain.database.SupplierVo;
 
 public class GenSimSuppliers {
@@ -45,6 +52,13 @@ public class GenSimSuppliers {
 	public static final int NUM_SIM_CHAINS_PER_SOURCE = 100;
 	public static final int NUM_SIM_LOTS = 10;
 	public static final int NUM_SIM_PROD_WEEKS = 8;
+	// Demo/learning purposes only - use Keystore
+	public static final String encodedPrivateKey = 
+		"307B020100301306072A8648CE3D020106082A8648CE3D0301010461305F020101041815D67A1C8826B62A54AD050B65A9812470C04B5E25FDAA1DA00A06082A8648CE3D030101A13403320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
+	public static final String encodedPublicKey = 
+		"3049301306072A8648CE3D020106082A8648CE3D03010103320004F127F659E0B608FC1145E152DC54F1EA152824D21343AC0869077EB70837D9C70EEB9174D87D0AA89BF4C8AD5668402E";
+	public static final String encryptionAlgorithm = "ECDSA";
+
 	private KeyFactory keyFactory;
 	private PrivateKey privateKeyFrom;
 	private PublicKey publicKeyFrom;
@@ -55,9 +69,9 @@ public class GenSimSuppliers {
 
 	public GenSimSuppliers(String pathSimBlockchainSequenceItemsJson) throws Exception {
 		this.pathSimBlockchainSequenceItemsJson = pathSimBlockchainSequenceItemsJson;
-		this.keyFactory = KeyFactory.getInstance(GenTransactions.encryptionAlgorithm);
-		privateKeyFrom = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(BlockchainUtils.toByteArray(GenTransactions.encodedPrivateKey)));
-		publicKeyFrom = keyFactory.generatePublic(new X509EncodedKeySpec(BlockchainUtils.toByteArray(GenTransactions.encodedPublicKey)));
+		this.keyFactory = KeyFactory.getInstance(encryptionAlgorithm);
+		privateKeyFrom = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(BlockchainUtils.toByteArray(encodedPrivateKey)));
+		publicKeyFrom = keyFactory.generatePublic(new X509EncodedKeySpec(BlockchainUtils.toByteArray(encodedPublicKey)));
 		simDate = ZonedDateTime.now().minusYears(1);
 		simdDateDaysOffset = 0;
 	}
@@ -77,6 +91,8 @@ public class GenSimSuppliers {
 			config = SupplyBlockchainConfig.getInstance( System.getenv("ENV"), System.getenv("CONTACT_POINT"),
 					System.getenv("KEYSPACE_NAME") );
 			PooledDataSource.getInstance( config ); 
+			// Clear out old simulated data
+			deleteAllTables();
 
 			List<SupplierVo> supplierVos = GenSimSuppliers.createSupplierVos();
 			// farm,rice supplier,seed supplier,fert, coop,rice ABCPetFood
@@ -165,32 +181,35 @@ public class GenSimSuppliers {
 				List<SupplierVo> supplierVosByKey = mapSupplierVos.get(key);
 				SupplierVo supplierVoRnd = supplierVosByKey.get(random.nextInt(NUM_SIM_EACH_SUPPLIER));
 				// TODO: multiple lots per supplier, each with a different date
-				String supplierTransationUuid = BlockchainUtils.generateSortabledUuid();
-				SupplierTransaction supplierTransaction = new SupplierTransaction()
-						.setSupplierTransationUuid(supplierTransationUuid).setDunsNumber(supplierVoRnd.getDunsNumber())
-						.setSupplierName(supplierVoRnd.getSupplierName()).setSupplierCategory(supplierVoRnd.getSupplierCategory())
-						.setSupplierSubCategory(supplierVoRnd.getSupplierSubCategory()).setSupplierLotNumber("TODO").setItemNumber("TODO")
-						.setDescription(descCatSubcatItem.getDesc()).setQty(100).setUnits("TODO")
-						.setShippedDateIso8601(simDate.plusDays(simdDateDaysOffset++).format(DateTimeFormatter.ISO_INSTANT))
-						.setRcvdDateIso8601(simDate.plusDays(simdDateDaysOffset++).format(DateTimeFormatter.ISO_INSTANT));
-				PublicKey publicKeyTo = keyFactory.generatePublic(new X509EncodedKeySpec(BlockchainUtils.toByteArray(supplierVoRnd.getEncodedPublicKey())));
+				String supplierTransactionUuid = BlockchainUtils.generateSortabledUuid();
 				String supplierBlockTransactionUuid = BlockchainUtils.generateSortabledUuid();
-				SupplierBlockTransaction supplierBlockTransaction = new SupplierBlockTransaction()
-						.setSupplierBlockTransactionUuid(supplierBlockTransactionUuid).setPublicKeyFrom(publicKeyFrom).setPublicKeyTo(publicKeyTo)
-						.setSupplierTransaction(supplierTransaction).setTransactionSequence(blockSequence).updateTransactionId().generateSignature(privateKeyFrom);
+				SupplierTransactionVo supplierTransactionVo = new SupplierTransactionVo()
+						.setSupplierTransactionUuid(supplierTransactionUuid)
+						.setSupplierBlockTransactionUuid(supplierBlockTransactionUuid)
+						.setSupplierUuid(supplierVoRnd.getSupplierUuid())
+						.setSupplierLotNumber("TODO").setItemNumber("TODO")
+						.setDescription(descCatSubcatItem.getDesc()).setQty(100).setUnits("TODO")
+						.setShippedDateIso8601( Timestamp.from( simDate.plusDays(simdDateDaysOffset++).toInstant()) )
+						.setRcvdDateIso8601( Timestamp.from( simDate.plusDays(simdDateDaysOffset++).toInstant()) );
+				PublicKey publicKeyTo = keyFactory.generatePublic(new X509EncodedKeySpec(BlockchainUtils.toByteArray(supplierVoRnd.getEncodedPublicKey())));
+				SupplierBlockTransactionVo supplierBlockTransactionVo = new SupplierBlockTransactionVo()
+						.setSupplierBlockTransactionUuid(supplierBlockTransactionUuid)
+						.setEncodedPublicKeyFrom( BlockchainUtils.getEncodedStringFromKey( publicKeyFrom) )
+						.setEncodedPublicKeyTo( BlockchainUtils.getEncodedStringFromKey( publicKeyTo) )
+						.setSupplierTransactionVo(supplierTransactionVo).setTransactionSequence(blockSequence).updateTransactionId().generateSignature(privateKeyFrom);
 				String supplierBlockUuid = BlockchainUtils.generateSortabledUuid();
-				SupplierBlockVo supplierBlock = new SupplierBlockVo()
-						.setPreviousHash(previousHash).setSupplierBlockTransaction(supplierBlockTransaction)
+				SupplierBlockVo supplierBlockVo = new SupplierBlockVo()
+						.setPreviousHash(previousHash).setSupplierBlockTransactionVo(supplierBlockTransactionVo)
 						.setBlockSequence(blockSequence).setSupplierBlockUuid(supplierBlockUuid).setSupplierBlockchainUuid(supplierBlockChainUuid).updateHash();
-				supplierBlocks.add(supplierBlock);
+				supplierBlocks.add(supplierBlockVo);
 				blockSequence++;
-				previousHash = supplierBlock.getHash();
+				previousHash = supplierBlockVo.getHash();
 			}
 			System.out.println("+++++++++++++++++++++++++++++++++++");
 			for (SupplierBlockVo supplierBlock : supplierBlocks) {
 				System.out.println(supplierBlock);
 			}
-			supplierBlockChains.add(new SupplierBlockchainVo().setSupplierBlockChainUuid(supplierBlockChainUuid)
+			supplierBlockChains.add(new SupplierBlockchainVo().setSupplierBlockchainUuid(supplierBlockChainUuid)
 					.setSupplierType(simBlockchainSequenceItem.getSupplierType()).setSupplierBlockVos(supplierBlocks));
 		}
 		return supplierBlockChains;
@@ -217,7 +236,6 @@ public class GenSimSuppliers {
 			else
 				prefChar = 'A';
 		}
-		SupplierDao.truncate( );
 		SupplierDao.insertBatchList( supplierVos );
 
 		return supplierVos;
@@ -228,5 +246,13 @@ public class GenSimSuppliers {
 				"MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
 				"VA", "WA", "WV", "WI", "WY" };
 		return abbrevs[random.nextInt(50)];
+	}
+	
+	public static void deleteAllTables() throws Exception {
+		SupplierBlockchainDao.deleteAll();
+		SupplierBlockDao.deleteAll();
+		SupplierBlockTransactionDao.deleteAll();
+		SupplierTransactionDao.deleteAll();
+		SupplierDao.deleteAll();
 	}
 }

@@ -25,14 +25,14 @@ public class SupplierBlockTransaction {
 
 	// This Calculates the transaction hash (which will be used as its Id)
 	public SupplierBlockTransaction updateTransactionId() {
-		this.transactionId = BlockchainUtils.applySha256(BlockchainUtils.getStringFromKey(publicKeyFrom)
-				+ BlockchainUtils.getStringFromKey(publicKeyTo) + supplierTransaction.hashCode() + transactionSequence);
+		this.transactionId = BlockchainUtils.applySha256(BlockchainUtils.getEncodedStringFromKey(publicKeyFrom)
+				+ BlockchainUtils.getEncodedStringFromKey(publicKeyTo) + supplierTransaction.hashCode() + transactionSequence);
 		return this;
 	}
 
 	// Signs all the data we dont wish to be tampered with.
 	public SupplierBlockTransaction generateSignature(PrivateKey privateKey) {
-		String data = BlockchainUtils.getStringFromKey(publicKeyFrom) + BlockchainUtils.getStringFromKey(publicKeyTo)
+		String data = BlockchainUtils.getEncodedStringFromKey(publicKeyFrom) + BlockchainUtils.getEncodedStringFromKey(publicKeyTo)
 				+ supplierTransaction;
 		signature = BlockchainUtils.applyECDSASig(privateKey, data);
 		return this;
@@ -40,7 +40,7 @@ public class SupplierBlockTransaction {
 
 	// Verifies the data we signed hasnt been tampered with
 	public boolean verifySignature() {
-		String data = BlockchainUtils.getStringFromKey(publicKeyFrom) + BlockchainUtils.getStringFromKey(publicKeyTo)
+		String data = BlockchainUtils.getEncodedStringFromKey(publicKeyFrom) + BlockchainUtils.getEncodedStringFromKey(publicKeyTo)
 				+ supplierTransaction;
 		return BlockchainUtils.verifyECDSASig(publicKeyFrom, data, signature);
 	}

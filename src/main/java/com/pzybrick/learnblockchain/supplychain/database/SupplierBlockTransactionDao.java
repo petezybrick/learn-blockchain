@@ -1,0 +1,180 @@
+package com.pzybrick.learnblockchain.supplychain.database;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.Timestamp;
+import java.sql.PreparedStatement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.pzybrick.learnblockchain.supplychain.SupplyBlockchainConfig;
+
+
+public class SupplierBlockTransactionDao {
+	private static final Logger logger = LogManager.getLogger(SupplierBlockTransactionDao.class);
+	private static String sqlDeleteAll = "DELETE FROM supplier_block_transaction";
+	private static String sqlDeleteByPk = "DELETE FROM supplier_block_transaction WHERE supplier_block_transaction_uuid=?";
+	private static String sqlInsert = "INSERT INTO supplier_block_transaction (supplier_block_transaction_uuid,supplier_block_uuid,transaction_id,encoded_public_key_from,encoded_public_key_to,signature,transaction_sequence,update_ts) VALUES (?,?,?,?,?,?,?,?)";
+	private static String sqlFindByPk = "SELECT supplier_block_transaction_uuid,supplier_block_uuid,transaction_id,encoded_public_key_from,encoded_public_key_to,signature,transaction_sequence,insert_ts,update_ts FROM supplier_block_transaction WHERE supplier_block_transaction_uuid=?";
+
+
+	public static void deleteAll( ) throws Exception {
+		try (Connection con = PooledDataSource.getInstance().getConnection();
+				Statement stmt = con.createStatement();){
+			stmt.execute( sqlDeleteAll );
+		}
+	}
+	
+	public static void insertBatchMode( Connection con, SupplierBlockTransactionVo supplierBlockTransactionVo ) throws Exception {
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = con.prepareStatement(sqlInsert);
+			int offset = 1;
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockTransactionUuid() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockUuid() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getTransactionId() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getEncodedPublicKeyFrom() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getEncodedPublicKeyTo() );
+			pstmt.setBytes( offset++, supplierBlockTransactionVo.getSignature() );
+			pstmt.setInt( offset++, supplierBlockTransactionVo.getTransactionSequence() );
+			pstmt.setTimestamp( offset++, supplierBlockTransactionVo.getUpdateTs() );
+			pstmt.execute();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		} finally {
+			try {
+				if (pstmt != null)
+				pstmt.close();
+			} catch (Exception e) {
+				logger.warn(e);
+			}
+		}
+	}
+
+	public static void insert( SupplyBlockchainConfig supplyBlockchainConfig, SupplierBlockTransactionVo supplierBlockTransactionVo ) throws Exception {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try {
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
+			con.setAutoCommit(false);
+			pstmt = con.prepareStatement(sqlInsert);
+			int offset = 1;
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockTransactionUuid() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockUuid() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getTransactionId() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getEncodedPublicKeyFrom() );
+			pstmt.setString( offset++, supplierBlockTransactionVo.getEncodedPublicKeyTo() );
+			pstmt.setBytes( offset++, supplierBlockTransactionVo.getSignature() );
+			pstmt.setInt( offset++, supplierBlockTransactionVo.getTransactionSequence() );
+			pstmt.setTimestamp( offset++, supplierBlockTransactionVo.getUpdateTs() );
+			pstmt.execute();
+			con.commit();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			if( con != null ) {
+				try {
+					con.rollback();
+				} catch(Exception erb ) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			throw e;
+		} finally {
+			try {
+				if (pstmt != null)
+					pstmt.close();
+			} catch (Exception e) {
+				logger.warn(e);
+			}
+			try {
+				if (con != null)
+					con.close();
+			} catch (Exception exCon) {
+				logger.warn(exCon.getMessage());
+			}
+		}
+	}
+
+	public static void deleteByPk( SupplyBlockchainConfig supplyBlockchainConfig, SupplierBlockTransactionVo supplierBlockTransactionVo ) throws Exception {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try {
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
+			con.setAutoCommit(true);
+			pstmt = con.prepareStatement(sqlDeleteByPk);
+			int offset = 1;
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockTransactionUuid() );
+			pstmt.execute();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			if( con != null ) {
+				try {
+					con.rollback();
+				} catch(Exception erb ) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			throw e;
+		} finally {
+			try {
+				if (pstmt != null)
+					pstmt.close();
+			} catch (Exception e) {
+				logger.warn(e);
+			}
+			try {
+				if (con != null)
+					con.close();
+			} catch (Exception exCon) {
+				logger.warn(exCon.getMessage());
+			}
+		}
+	}
+
+	public static void deleteBatchMode( Connection con, SupplierBlockTransactionVo supplierBlockTransactionVo ) throws Exception {
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = con.prepareStatement(sqlDeleteByPk);
+			int offset = 1;
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockTransactionUuid() );
+			pstmt.execute();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		} finally {
+			try {
+				if (pstmt != null)
+					pstmt.close();
+			} catch (Exception e) {
+				logger.warn(e);
+			}
+		}
+	}
+
+	public static SupplierBlockTransactionVo findByPk( SupplyBlockchainConfig supplyBlockchainConfig, SupplierBlockTransactionVo supplierBlockTransactionVo ) throws Exception {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		try {
+			con = PooledDataSource.getInstance(supplyBlockchainConfig).getConnection();
+			con.setAutoCommit(true);
+			pstmt = con.prepareStatement(sqlFindByPk);
+			int offset = 1;
+			pstmt.setString( offset++, supplierBlockTransactionVo.getSupplierBlockTransactionUuid() );
+			ResultSet rs = pstmt.executeQuery();
+			if( rs.next() ) return new SupplierBlockTransactionVo(rs);
+			else return null;
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		} finally {
+			try {
+				if (pstmt != null)
+					pstmt.close();
+			} catch (Exception e) {
+				logger.warn(e);
+			}
+		}
+	}
+}
