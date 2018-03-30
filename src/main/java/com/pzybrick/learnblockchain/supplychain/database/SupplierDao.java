@@ -23,6 +23,7 @@ public class SupplierDao {
 	public static void deleteAll( ) throws Exception {
 		try (Connection con = PooledDataSource.getInstance().getConnection();
 				Statement stmt = con.createStatement();){
+			con.setAutoCommit(true);
 			stmt.execute( sqlDeleteAll );
 		}
 	}

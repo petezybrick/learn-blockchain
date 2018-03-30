@@ -22,14 +22,13 @@ public class SupplierTransactionDao {
 	public static void deleteAll( ) throws Exception {
 		try (Connection con = PooledDataSource.getInstance().getConnection();
 				Statement stmt = con.createStatement();){
+			con.setAutoCommit(true);
 			stmt.execute( sqlDeleteAll );
 		}
 	}
 	
 	public static void insertBatchMode( Connection con, SupplierTransactionVo supplierTransactionVo ) throws Exception {
-		PreparedStatement pstmt = null;
-		try {
-			pstmt = con.prepareStatement(sqlInsert);
+		try (PreparedStatement pstmt = con.prepareStatement(sqlInsert);) {
 			int offset = 1;
 			pstmt.setString( offset++, supplierTransactionVo.getSupplierTransactionUuid() );
 			pstmt.setString( offset++, supplierTransactionVo.getSupplierBlockTransactionUuid() );
@@ -46,13 +45,6 @@ public class SupplierTransactionDao {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
-		} finally {
-			try {
-				if (pstmt != null)
-				pstmt.close();
-			} catch (Exception e) {
-				logger.warn(e);
-			}
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.util.List;
 import java.sql.PreparedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,9 +23,33 @@ public class SupplierBlockchainDao {
 	public static void deleteAll( ) throws Exception {
 		try (Connection con = PooledDataSource.getInstance().getConnection();
 				Statement stmt = con.createStatement();){
+			con.setAutoCommit(true);
 			stmt.execute( sqlDeleteAll );
 		}
 	}
+	
+	
+	public static void insertBatchList( Connection con, List<SupplierBlockchainVo> supplierBlockchainVos ) throws Exception {
+		final int BATCH_SIZE = 1000;
+		try (PreparedStatement pstmt = con.prepareStatement(sqlInsert);){
+			int cnt = 0;
+			for( SupplierBlockchainVo supplierBlockchainVo : supplierBlockchainVos ) {
+				int offset = 1;
+				pstmt.setString( offset++, supplierBlockchainVo.getSupplierBlockchainUuid() );
+				pstmt.setString( offset++, supplierBlockchainVo.getSupplierType() );
+				pstmt.setTimestamp( offset++, supplierBlockchainVo.getUpdateTs() );
+				pstmt.addBatch();
+				if( cnt % BATCH_SIZE == 0 ) {
+					pstmt.executeBatch();
+				}
+				if( supplierBlockchainVo.getSupplierBlockVos() != null ) {
+					SupplierBlockDao.insertBatchList( con, supplierBlockchainVo.getSupplierBlockVos() );
+				}
+			}
+			pstmt.executeBatch();
+		}
+	}
+
 	
 	public static void insertBatchMode( Connection con, SupplierBlockchainVo supplierBlockchainVo ) throws Exception {
 		PreparedStatement pstmt = null;

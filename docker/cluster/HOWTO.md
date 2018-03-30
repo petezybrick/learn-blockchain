@@ -43,3 +43,10 @@ exit MySQL
 	exit;
 exit container
 	exit
+	
+	
+Create Tomcat9 Image
+review dockerfile
+open a terminal window, cd to tomcat folder
+docker build -t tomcat:9.0.6 .
+
