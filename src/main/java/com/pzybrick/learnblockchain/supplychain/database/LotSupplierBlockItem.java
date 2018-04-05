@@ -9,6 +9,8 @@ public class LotSupplierBlockItem {
 	private String supplierSubCategory;
 	private String supplierName;
 	private String dunsNumber;
+	private String country;
+	private String stateProvince;
 	
 	
 	public Integer getBlockSequence() {
@@ -71,7 +73,21 @@ public class LotSupplierBlockItem {
 	public String toString() {
 		return "LotSupplierBlockItem [blockSequence=" + blockSequence + ", hash=" + hash + ", previousHash=" + previousHash + ", supplierLotNumber="
 				+ supplierLotNumber + ", supplierCategory=" + supplierCategory + ", supplierSubCategory=" + supplierSubCategory + ", supplierName="
-				+ supplierName + ", dunsNumber=" + dunsNumber + "]";
+				+ supplierName + ", dunsNumber=" + dunsNumber + ", country=" + country + ", stateProvince=" + stateProvince + "]";
+	}
+	public String getCountry() {
+		return country;
+	}
+	public String getStateProvince() {
+		return stateProvince;
+	}
+	public LotSupplierBlockItem setCountry(String country) {
+		this.country = country;
+		return this;
+	}
+	public LotSupplierBlockItem setStateProvince(String stateProvince) {
+		this.stateProvince = stateProvince;
+		return this;
 	}
 
 	

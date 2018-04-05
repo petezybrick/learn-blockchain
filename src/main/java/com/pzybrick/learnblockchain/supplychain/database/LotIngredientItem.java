@@ -1,11 +1,18 @@
 package com.pzybrick.learnblockchain.supplychain.database;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LotIngredientItem {
 	private Integer ingredientSequence;
 	private String ingredientName;
 	private List<LotSupplierBlockItem> lotSupplierBlockItems;
+	
+	
+	public LotIngredientItem() {
+		super();
+		this.lotSupplierBlockItems = new ArrayList<LotSupplierBlockItem>();
+	}
 	
 	public Integer getIngredientSequence() {
 		return ingredientSequence;
